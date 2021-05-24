@@ -1,5 +1,13 @@
 
 *** SVG Library
 
+A small Emacs library to create adn display various SVG objects,
+namely tags, progress bars and icons. Each object is guaranteed to fit
+nicely in a text buffer ensuring width is an interger multiple of
+charater width.
+
+
+*** Usage example
+
 [[file:screenshot.png]]
 
