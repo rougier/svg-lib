@@ -20,22 +20,21 @@
 
           
 
-(insert-image (svg-lib-progress .75 nil
-                   :foreground "#999999" :background "#f0f0f0"
-                   :margin 0 :radius 0 :stroke .5 :padding 0))
-
- 
-
 (insert-image (svg-lib-progress 0.75 nil :radius 8 :stroke 2 :padding 0))
 
  
 
 (dotimes (i 10)
-  (insert-image (svg-lib-icon "material" "star" nil :scale (/ (+ i 1) 10.0))))
+  (insert-image (svg-lib-icon "star" nil :scale (/ (+ i 1) 10.0))))
 
           
 
-(insert-image (svg-lib-icon "material" "star" nil :radius 8
-                            :foreground "white" :background "black"
-                            :stroke 0 :scale 0.75 :padding 0))
+(insert-image (svg-lib-button "check-bold" "DONE" nil
+                              :font-family "Roboto Mono"
+                              :font-weight 500
+                         :stroke 0 :background "#673AB7" :foreground "white"))
  
+
+(insert-image (svg-lib-icon "gnuemacs" nil :collection "simple"
+                            :stroke 0 :scale 1 :padding 0))
+ GNU Emacs

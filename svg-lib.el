@@ -79,6 +79,8 @@
 (defcustom  svg-lib-icon-collections
   '(("bootstrap" .
      "https://icons.getbootstrap.com/icons/%s.svg")
+    ("simple" .
+     "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/%s.svg")
     ("material" .
      "https://raw.githubusercontent.com/Templarian/MaterialDesign/master/svg/%s.svg")
     ("octicons" .
@@ -123,6 +125,8 @@ to the default face)."
       :width         20     ;; In characters
       :height        0.90   ;; Ratio of text line height
       :scale         0.75   ;; Icon scaling
+
+      :collection    "material" ;; Icon collection
       
       :font-family   ,font-family
       :font-size     ,font-size
@@ -319,16 +323,18 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
         (xml-parse-region (point-min) (point-max))))))
 
 
-(defun svg-lib-icon (collection name &optional style &rest args)
+(defun svg-lib-icon (icon &optional style &rest args)
   "Create a SVG image displaying icon NAME from COLLECTION using
 given STYLE and style elements ARGS."
   
-  (let* ((root (svg-lib--icon-get-data collection name))
-
-         (default svg-lib-style-default)
+  (let* ((default svg-lib-style-default)
          (style (if style (apply #'svg-lib-style nil style) default))
          (style (if args  (apply #'svg-lib-style style args) style))
 
+         (collection  (plist-get style :collection))
+         (root (svg-lib--icon-get-data collection icon))
+
+         
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
@@ -345,7 +351,7 @@ given STYLE and style elements ARGS."
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          (box-width       (* width txt-char-width))
-         (box-height      (*  height txt-char-height))
+         (box-height      (* height txt-char-height))
          (svg-width       (+ box-width (* margin txt-char-width)))
          (svg-height      box-height)
          (box-x           (/ (- svg-width box-width) 2))
@@ -386,6 +392,94 @@ given STYLE and style elements ARGS."
                             :fill foreground
                             :transform icon-transform)))
     (svg-image svg :ascent 'center :scale 1)))
+
+
+
+;; Create an image displaying LABEL in a rounded box.
+;; ---------------------------------------------------------------------
+(defun svg-lib-button (icon label &optional style &rest args)
+  "Create an image displaying LABEL in a rounded box using given STYLE
+and style elements ARGS."
+
+  (let* ((default svg-lib-style-default)
+         (style (if style (apply #'svg-lib-style nil style) default))
+         (style (if args  (apply #'svg-lib-style style args) style))
+
+         (collection (plist-get style :collection))
+         (root (svg-lib--icon-get-data collection icon))
+         
+         (foreground  (plist-get style :foreground))
+         (background  (plist-get style :background))
+         (stroke      (plist-get style :stroke))
+         (width       (plist-get style :width))
+         (height      (plist-get style :height))
+         (radius      (plist-get style :radius))
+         (scale       (plist-get style :scale))
+         (margin      (plist-get style :margin))
+         (padding     (plist-get style :padding))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
+
+         (label-length    (+ (length label) 2))
+                          
+         (txt-char-width  (window-font-width))
+         (txt-char-height (window-font-height))
+         (box-width       (* width txt-char-width))
+         (box-height      (* height txt-char-height))
+
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (ascent          (aref font-info 8))
+         (tag-char-width  (aref font-info 11))
+         (tag-char-height (aref font-info 3))
+         (tag-width       (* (+ label-length padding) txt-char-width))
+         (tag-height      (* txt-char-height height))
+
+         (svg-width       (+ tag-width (* margin txt-char-width)))
+         (svg-height      tag-height)
+         
+         (tag-x (/ (- svg-width tag-width) 2))
+         (text-x (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
+         (text-x (+ text-x tag-char-width))
+         (text-y ascent)
+
+         ;; ;; Read original viewbox
+         (viewbox (cdr (assq 'viewBox (xml-node-attributes (car root)))))
+         (viewbox (mapcar 'string-to-number (split-string viewbox)))
+         (icon-x      (nth 0 viewbox))
+         (icon-y      (nth 1 viewbox))
+         (icon-width  (nth 2 viewbox))
+         (icon-height (nth 3 viewbox))
+         (scale       (* scale (/ (float tag-height) (float icon-height))))
+         (icon-transform
+          (format "translate(%f,%f) scale(%f) translate(%f,%f)"
+                  (- icon-x )
+                  (- icon-y )
+                  scale
+                  (- (/ (- text-x (* tag-char-width 1.25)) scale) (/ icon-width 2))
+                  (- (/ svg-height 2 scale) (/ icon-height 2))))
+         (svg (svg-create svg-width svg-height)))
+
+    (if (>= stroke 0.25)
+        (svg-rectangle svg tag-x 0 tag-width tag-height
+                           :fill foreground :rx radius))
+    (svg-rectangle svg (+ tag-x (/ stroke 2.0)) (/ stroke 2.0)
+                       (- tag-width stroke) (- tag-height stroke)
+                       :fill background :rx (- radius (/ stroke 2.0)))
+    (svg-text svg label
+              :font-family font-family :font-weight font-weight  :font-size font-size
+              :fill foreground :x text-x :y text-y)
+
+
+    (dolist (item (xml-get-children (car root) 'path))
+      (let* ((attrs (xml-node-attributes item))
+             (path (cdr (assoc 'd attrs)))
+             (fill (or (cdr (assoc 'fill attrs)) foreground)))
+        (svg-node svg 'path :d path
+                            :fill foreground
+                            :transform icon-transform)))
+    (svg-image svg :scale 1 :ascent 'center)))
+
 
 
 (provide 'svg-lib)
