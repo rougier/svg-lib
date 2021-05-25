@@ -101,12 +101,40 @@ collection (there are way too many to store them)."
 
 ;; Default style for all objects
 ;; ---------------------------------------------------------------------
+(defun svg-lib-style-compute-default (&optional face)
+  "Compute the default style according to face (which defaults
+to the default face)."
+
+  (let* ((face        (or face 'default))
+         (font-family (face-attribute face :family nil 'default))
+         (font-weight (face-attribute face :weight nil 'default))
+         (font-size   (face-attribute face :height nil 'default))
+         (font-size   (round (* font-size 0.085)))
+         (foreground  (face-attribute face :foreground nil 'default))
+         (background  (face-attribute face :background nil 'default)))
+
+    `(:background    ,background
+      :foreground    ,foreground
+                     
+      :padding       1      ;; In characters (tag and icons) or pixels (progress)
+      :margin        1      ;; In chracters
+      :stroke        2      ;; In pixels
+      :radius        3      ;; In pixels
+      :width         20     ;; In characters
+      :height        0.90   ;; Ratio of text line height
+      :scale         0.75   ;; Icon scaling
+      
+      :font-family   ,font-family
+      :font-size     ,font-size
+      :font-weight   ,font-weight)))
+
 (defcustom svg-lib-style-default
-  '(:foreground "black" :background "white" :stroke "black"
-    :thickness 2 :radius 3 :padding 1 :margin 1 :width 20 :scale 1.0
-    :family "Roboto Mono" :height 12 :weight regular)
+  (svg-lib-style-compute-default)
   "Default style"
+  :type '(plist :key-type   (string :tag "Property")
+                :value-type (string :tag "Value"))
   :group 'svg-lib)
+
 
 ;; Convert Emacs color to SVG color
 ;; ---------------------------------------------------------------------
@@ -141,17 +169,15 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
                (svg-lib-convert-color (plist-get style :foreground)))
     (plist-put style :background
                (svg-lib-convert-color (plist-get style :background)))
-    (plist-put style :stroke
-               (svg-lib-convert-color (plist-get style :stroke)))
 
     ;; Convert emacs font weights to SVG font weights
     (let ((weights
            '((thin       . 100) (ultralight . 200) (light      . 300)
              (regular    . 400) (medium     . 500) (semibold   . 600)
              (bold       . 700) (extrabold  . 800) (black      . 900))))
-      (plist-put style :weight
-                 (or (cdr (assoc (plist-get style :weight) weights))
-                     (plist-get style :weight))))
+      (plist-put style :font-weight
+                 (or (cdr (assoc (plist-get style :font-weight) weights))
+                     (plist-get style :font-weight))))
     style))
 
 
@@ -165,24 +191,27 @@ and style elements ARGS."
          (style (if style (apply #'svg-lib-style nil style) default))
          (style (if args  (apply #'svg-lib-style style args) style))
 
-         (foreground (plist-get style :foreground))
-         (background (plist-get style :background))
-         (stroke     (plist-get style :stroke))
-         (size       (plist-get style :height))
-         (family     (plist-get style :family))
-         (weight     (plist-get style :weight))
-         (radius     (plist-get style :radius))
-         (margin     (plist-get style :margin))
-         (padding    (plist-get style :padding))
-         (thickness  (plist-get style :thickness))
+         (foreground  (plist-get style :foreground))
+         (background  (plist-get style :background))
+         (stroke      (plist-get style :stroke))
+         (width       (plist-get style :width))
+         (height      (plist-get style :height))
+         (radius      (plist-get style :radius))
+         (scale       (plist-get style :scale))
+         (margin      (plist-get style :margin))
+         (padding     (plist-get style :padding))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
 
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
-         (ascent          (aref (font-info (format "%s:%d" family size)) 8))
-         (tag-char-width  (aref (font-info (format "%s:%d" family size)) 11))
-         (tag-char-height (aref (font-info (format "%s:%d" family size)) 3))
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (ascent          (aref font-info 8))
+         (tag-char-width  (aref font-info 11))
+         (tag-char-height (aref font-info 3))
          (tag-width       (* (+ (length label) padding) txt-char-width))
-         (tag-height      (* txt-char-height 0.9))
+         (tag-height      (* txt-char-height height))
 
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
@@ -193,16 +222,17 @@ and style elements ARGS."
          
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= thickness 0.25)
+    (if (>= stroke 0.25)
         (svg-rectangle svg tag-x 0 tag-width tag-height
-                           :fill stroke :rx radius))
-    (svg-rectangle svg (+ tag-x (/ thickness 2.0)) (/ thickness 2.0)
-                       (- tag-width thickness) (- tag-height thickness)
-                       :fill background :rx (- radius (/ thickness 2.0)))
+                           :fill foreground :rx radius))
+    (svg-rectangle svg (+ tag-x (/ stroke 2.0)) (/ stroke 2.0)
+                       (- tag-width stroke) (- tag-height stroke)
+                       :fill background :rx (- radius (/ stroke 2.0)))
     (svg-text svg label
-              :font-family family :font-weight weight  :font-size size
+              :font-family font-family :font-weight font-weight  :font-size font-size
               :fill foreground :x text-x :y  text-y)
     (svg-image svg :scale 1 :ascent 'center)))
+
 
 
 ;; Create a progress bar
@@ -215,26 +245,29 @@ and style elements ARGS."
          (style (if style (apply #'svg-lib-style nil style) default))
          (style (if args  (apply #'svg-lib-style style args) style))
 
-         (width      (plist-get style :width))
-         (foreground (plist-get style :foreground))
-         (background (plist-get style :background))
-         (stroke     (plist-get style :stroke))
-         (size       (plist-get style :height))
-         (family     (plist-get style :family))
-         (weight     (plist-get style :weight))
-         (radius     (plist-get style :radius))
-         (margin     (plist-get style :margin))
-         (padding    (plist-get style :padding))
-         (thickness  (plist-get style :thickness))
+         (foreground  (plist-get style :foreground))
+         (background  (plist-get style :background))
+         (stroke      (plist-get style :stroke))
+         (width       (plist-get style :width))
+         (height      (plist-get style :height))
+         (radius      (plist-get style :radius))
+         (scale       (plist-get style :scale))
+         (margin      (plist-get style :margin))
+         (padding     (plist-get style :padding))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
 
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
-        
-         (ascent          (aref (font-info (format "%s:%d" family size)) 8))
-         (tag-char-width  (aref (font-info (format "%s:%d" family size)) 11))
-         (tag-char-height (aref (font-info (format "%s:%d" family size)) 3))
+         
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (ascent          (aref font-info 8))
+         (tag-char-width  (aref font-info 11))
+         (tag-char-height (aref font-info 3))
+
          (tag-width       (* width txt-char-width))
-         (tag-height      (* txt-char-height 0.9))
+         (tag-height      (* txt-char-height height))
 
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
@@ -242,19 +275,19 @@ and style elements ARGS."
          (tag-x (/ (- svg-width tag-width) 2))
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= thickness 0.25)
+    (if (>= stroke 0.25)
         (svg-rectangle svg tag-x 0 tag-width tag-height
-                       :fill stroke :rx radius))
-    (svg-rectangle svg (+ tag-x (/ thickness 2.0))
-                       (/ thickness 2.0)
-                       (- tag-width thickness)
-                       (- tag-height thickness)
-                       :fill background :rx (- radius (/ thickness 2.0)))
-    (svg-rectangle svg (+ tag-x (/ thickness 2.0) padding)
-                       (+ (/ thickness 2.0) padding)
-                       (- (* value tag-width) thickness (* 2 padding))
-                       (- tag-height thickness (* 2 padding))
-                       :fill foreground :rx (- radius (/ thickness 2.0)))
+                       :fill foreground :rx radius))
+    (svg-rectangle svg (+ tag-x (/ stroke 2.0))
+                       (/ stroke 2.0)
+                       (- tag-width stroke)
+                       (- tag-height stroke)
+                       :fill background :rx (- radius (/ stroke 2.0)))
+    (svg-rectangle svg (+ tag-x (/ stroke 2.0) padding)
+                       (+ (/ stroke 2.0) padding)
+                       (- (* value tag-width) stroke (* 2 padding))
+                       (- tag-height stroke (* 2 padding))
+                       :fill foreground :rx (- radius (/ stroke 2.0)))
     
     (svg-image svg :scale 1 :ascent 'center)))
 
@@ -296,23 +329,23 @@ given STYLE and style elements ARGS."
          (style (if style (apply #'svg-lib-style nil style) default))
          (style (if args  (apply #'svg-lib-style style args) style))
 
-         (foreground (plist-get style :foreground))
-         (background (plist-get style :background))
-         (stroke     (plist-get style :stroke))
-         (size       (plist-get style :height))
-         (family     (plist-get style :family))
-         (weight     (plist-get style :weight))
-         (radius     (plist-get style :radius))
-         (margin     (plist-get style :margin))
-         (padding    (plist-get style :padding))
-         (thickness  (plist-get style :thickness))
-         (scale      (plist-get style :scale))
+         (foreground  (plist-get style :foreground))
+         (background  (plist-get style :background))
+         (stroke      (plist-get style :stroke))
+         (height      (plist-get style :height))
+         (radius      (plist-get style :radius))
+         (scale       (plist-get style :scale))
+         (margin      (plist-get style :margin))
+         (padding     (plist-get style :padding))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
          (width      (+ 2 padding))
          
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          (box-width       (* width txt-char-width))
-         (box-height      (*  0.90 txt-char-height))
+         (box-height      (*  height txt-char-height))
          (svg-width       (+ box-width (* margin txt-char-width)))
          (svg-height      box-height)
          (box-x           (/ (- svg-width box-width) 2))
@@ -336,14 +369,14 @@ given STYLE and style elements ARGS."
 
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= thickness 0.25)
+    (if (>= stroke 0.25)
         (svg-rectangle svg box-x box-y box-width box-height
-                       :fill stroke :rx radius))
-    (svg-rectangle svg (+ box-x (/ thickness 2.0))
-                       (+ box-y (/ thickness 2.0))
-                       (- box-width thickness)
-                       (- box-height thickness)
-                       :fill background :rx (- radius (/ thickness 2.0)))
+                       :fill foreground :rx radius))
+    (svg-rectangle svg (+ box-x (/ stroke 2.0))
+                       (+ box-y (/ stroke 2.0))
+                       (- box-width stroke)
+                       (- box-height stroke)
+                       :fill background :rx (- radius (/ stroke 2.0)))
     
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
