@@ -68,6 +68,9 @@
 
 ;;; Code:
 (require 'svg)
+(require 'xml)
+(require 'cl-lib)
+
 
 (defgroup svg-lib nil
   "SVG tags, bars & icons."
@@ -482,5 +485,42 @@ and style elements ARGS."
 
 
 
+(defun svg-lib-concat (svg-image-1 svg-image-2)
+  "Concatenate two svg images horizontally."
+
+ (let* ((svg (car (with-temp-buffer
+ 	                (insert (plist-get (cdr svg-image-1) :data))
+ 	                (xml-parse-region (point-min) (point-max)))))
+        (attrs (xml-node-attributes svg))
+        (width-1 (string-to-number (cdr (assq 'width attrs))))
+        (height-1 (string-to-number (cdr (assq 'height attrs))))
+        (children-1 (xml-node-children svg))
+ 
+        (svg (car (with-temp-buffer
+ 	                (insert (plist-get (cdr svg-image-2) :data))
+ 	                (xml-parse-region (point-min) (point-max)))))
+        (attrs (xml-node-attributes svg))
+        (width-2 (string-to-number (cdr (assq 'width attrs))))
+        (height-2 (string-to-number (cdr (assq 'height attrs))))
+        (children-2 (xml-node-children svg))
+
+        (width (+ width-1 width-2))
+        (height (max height-1 height-2))
+        (transform (format "translate(%f,0)" width-1))
+        (svg (svg-create width height)))
+
+   (dolist (child children-1)
+     (dom-append-child svg child))
+
+   (dolist (child children-2)
+     (if (not (stringp child))
+         (dom-set-attribute child 'transform transform))
+     (dom-append-child svg child))
+   svg))
+
 (provide 'svg-lib)
 ;;; svg-lib.el ends here
+
+
+
+      

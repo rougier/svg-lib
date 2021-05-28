@@ -6,8 +6,9 @@ namely tags, progress bars and icons. Each object is guaranteed to fit
 nicely in a text buffer ensuring width is an integer multiple of
 charater width.
 
-
 *** Usage example
+
+[[file:screenshot-2.png]]
 
 [[file:screenshot.png]]
 
