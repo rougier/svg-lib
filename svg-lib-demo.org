@@ -58,8 +58,8 @@
    - [ ] TODO Sub-task 2
    - [ ] TODO Sub-task 5
 
-* Progress percent: [100%]
+* Progress percent: [66%]
 
    - [X] DONE Sub-task 1
    - [X] DONE Sub-task 2
-   - [X] TODO Sub-task 3
+   - [ ] TODO Sub-task 3
