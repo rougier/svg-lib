@@ -318,18 +318,15 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
             (write-region (point-min) (point-max) filename))))
 
     ;; Get data from cache
-    (let ((buffer (generate-new-buffer " *temp*")))
+    (let ((buffer (url-fetch-from-cache url)))
       (with-current-buffer buffer
-        (url-cache-extract (url-cache-create-filename url)))
-      (with-temp-buffer
-        (url-insert-buffer-contents buffer url)
         (xml-parse-region (point-min) (point-max))))))
 
 
 (defun svg-lib-icon (icon &optional style &rest args)
   "Create a SVG image displaying icon NAME from COLLECTION using
 given STYLE and style elements ARGS."
-  
+
   (let* ((default svg-lib-style-default)
          (style (if style (apply #'svg-lib-style nil style) default))
          (style (if args  (apply #'svg-lib-style style args) style))
