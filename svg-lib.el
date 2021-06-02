@@ -318,7 +318,13 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
             (write-region (point-min) (point-max) filename))))
 
     ;; Get data from cache
-    (let ((buffer (url-fetch-from-cache url)))
+    (let ((buffer (if (or force-reload (not (url-is-cached url)))
+                      (let ((url-automatic-caching t)
+                            (filename (url-cache-create-filename url)))
+                        (with-current-buffer (url-retrieve-synchronously url)
+                          (write-region (point-min) (point-max) filename)
+                          (current-buffer)))
+                      (url-fetch-from-cache url))))
       (with-current-buffer buffer
         (xml-parse-region (point-min) (point-max))))))
 
