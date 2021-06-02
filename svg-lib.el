@@ -306,17 +306,9 @@ and style elements ARGS."
   "Retrieve icon NAME from COLLECTION.
 
 Cached version is returned if it exists unless FORCE-RELOAD is t."
-  
+
   ;; Build url from collection and name without checking for error
   (let ((url (format (cdr (assoc collection svg-lib-icon-collections)) name)))
-
-    ;; Get data only if not cached or if explicitely requested
-    (if (or force-reload (not (url-is-cached url)))
-        (let ((url-automatic-caching t)
-              (filename (url-cache-create-filename url)))
-          (with-current-buffer (url-retrieve-synchronously url)
-            (write-region (point-min) (point-max) filename))))
-
     ;; Get data from cache
     (let ((buffer (if (or force-reload (not (url-is-cached url)))
                       (let ((url-automatic-caching t)
