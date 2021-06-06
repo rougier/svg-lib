@@ -103,6 +103,10 @@ collection (there are way too many to store them)."
                 :value-type (string :tag "URL"))
   :group 'svg-lib)
 
+(defcustom svg-lib-icons-dir "~/Downloads"
+  "svg-lib icons directory."
+  :group 'svg-lib
+  :type 'directory)
 
 ;; Default style for all objects
 ;; ---------------------------------------------------------------------
@@ -310,13 +314,16 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
   ;; Build url from collection and name without checking for error
   (let ((url (format (cdr (assoc collection svg-lib-icon-collections)) name)))
     ;; Get data from cache
-    (let ((buffer (if (or force-reload (not (url-is-cached url)))
-                      (let ((url-automatic-caching t)
-                            (filename (url-cache-create-filename url)))
-                        (with-current-buffer (url-retrieve-synchronously url)
-                          (write-region (point-min) (point-max) filename)
-                          (current-buffer)))
-                      (url-fetch-from-cache url))))
+    (let* ((filename (expand-file-name (format "%s_%s.svg" collection name) svg-lib-icons-dir))
+           (buffer (if (or force-reload (not (file-exists-p filename)))
+                       (with-current-buffer (url-retrieve-synchronously url)
+                         (goto-char (point-min))
+                         (search-forward "\n\n")
+                         (write-region (point) (point-max) filename)
+                         (current-buffer))
+                     (with-current-buffer (generate-new-buffer " *temp*")
+                       (insert-file-contents filename)
+                       (current-buffer)))))
       (with-current-buffer buffer
         (xml-parse-region (point-min) (point-max))))))
 
