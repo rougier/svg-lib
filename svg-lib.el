@@ -103,7 +103,8 @@ collection (there are way too many to store them)."
                 :value-type (string :tag "URL"))
   :group 'svg-lib)
 
-(defcustom svg-lib-icons-dir "~/Downloads"
+(defcustom svg-lib-icons-dir
+  (expand-file-name (concat user-emacs-directory ".cache/svg-lib/"))
   "svg-lib icons directory."
   :group 'svg-lib
   :type 'directory)
@@ -313,7 +314,9 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
 
   ;; Build url from collection and name without checking for error
   (let ((url (format (cdr (assoc collection svg-lib-icon-collections)) name)))
-    ;; Get data from cache
+    ;; create the svg-lib-icons-dir if not exists
+    (unless (file-exists-p svg-lib-icons-dir)
+      (make-directory svg-lib-icons-dir))
     (let* ((filename (expand-file-name (format "%s_%s.svg" collection name) svg-lib-icons-dir))
            (buffer (if (or force-reload (not (file-exists-p filename)))
                        (with-current-buffer (url-retrieve-synchronously url)
