@@ -1,17 +1,23 @@
+#+STARTUP: overview indent
 
 * Code
-#+begin_src lisp
+#+begin_src emacs-lisp
 (require 'svg-lib)
 
 (defvar svg-font-lock-keywords
   `(("TODO"
      (0 (list 'face nil 'display (svg-font-lock-todo))))
+    ("\\:\\([0-9a-zA-Z]+\\)\\:"
+     (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))
     ("DONE"
      (0 (list 'face nil 'display (svg-font-lock-done))))
     ("\\[\\([0-9]\\{1,3\\}\\)%\\]"
      (0 (list 'face nil 'display (svg-font-lock-progress_percent (match-string 1)))))
     ("\\[\\([0-9]+/[0-9]+\\)\\]"
      (0 (list 'face nil 'display (svg-font-lock-progress_count (match-string 1)))))))
+
+(defun svg-font-lock-tag (label)
+  (svg-lib-tag label nil :margin 0))
 
 (defun svg-font-lock-todo ()
   (svg-lib-tag "TODO" nil :margin 0
@@ -35,10 +41,10 @@
          (count (float (car seq)))
          (total (float (cadr seq))))
   (svg-image (svg-lib-concat
-              (svg-lib-progress (/ count total)
-                                nil :stroke 2 :radius 3 :padding 2 :width 12)
-              (svg-lib-tag value
-                           nil :stroke 0 :margin 0)) :ascent 'center)))
+              (svg-lib-progress (/ count total) nil
+                                :margin 0 :stroke 2 :radius 3 :padding 2 :width 12)
+              (svg-lib-tag value nil
+                           :stroke 0 :margin 0)) :ascent 'center)))
 
 ;; Activate
 (push 'display font-lock-extra-managed-props)
@@ -51,15 +57,20 @@
 
 #+end_src
 
+#+RESULTS:
 
-* Progress count: [1/3]
+* Progress count:   [2/3] 
+:PROPERTIES:
+:END:
 
-   - [X] DONE Sub-task 1
-   - [ ] TODO Sub-task 2
-   - [ ] TODO Sub-task 5
+- [X] Sub-task 1
+- [X] Sub-task 2
+- [ ] Sub-task 3
 
-* Progress percent: [66%]
+* Progress percent: [100%]
+:PROPERTIES:
+:END:
 
-   - [X] DONE Sub-task 1
-   - [X] DONE Sub-task 2
-   - [ ] TODO Sub-task 3
+- [X] Sub-task 1
+- [X] Sub-task 2
+- [X] Sub-task 3
