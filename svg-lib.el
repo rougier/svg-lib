@@ -103,6 +103,11 @@ collection (there are way too many to store them)."
                 :value-type (string :tag "URL"))
   :group 'svg-lib)
 
+(defcustom svg-lib-icons-dir
+  (expand-file-name (concat user-emacs-directory ".cache/svg-lib/"))
+  "svg-lib icons directory."
+  :group 'svg-lib
+  :type 'directory)
 
 ;; Default style for all objects
 ;; ---------------------------------------------------------------------
@@ -306,30 +311,30 @@ and style elements ARGS."
   "Retrieve icon NAME from COLLECTION.
 
 Cached version is returned if it exists unless FORCE-RELOAD is t."
-  
+
   ;; Build url from collection and name without checking for error
   (let ((url (format (cdr (assoc collection svg-lib-icon-collections)) name)))
-
-    ;; Get data only if not cached or if explicitely requested
-    (if (or force-reload (not (url-is-cached url)))
-        (let ((url-automatic-caching t)
-              (filename (url-cache-create-filename url)))
-          (with-current-buffer (url-retrieve-synchronously url)
-            (write-region (point-min) (point-max) filename))))
-
-    ;; Get data from cache
-    (let ((buffer (generate-new-buffer " *temp*")))
+    ;; create the svg-lib-icons-dir if not exists
+    (unless (file-exists-p svg-lib-icons-dir)
+      (make-directory svg-lib-icons-dir))
+    (let* ((filename (expand-file-name (format "%s_%s.svg" collection name) svg-lib-icons-dir))
+           (buffer (if (or force-reload (not (file-exists-p filename)))
+                       (with-current-buffer (url-retrieve-synchronously url)
+                         (goto-char (point-min))
+                         (search-forward "\n\n")
+                         (write-region (point) (point-max) filename)
+                         (current-buffer))
+                     (with-current-buffer (generate-new-buffer " *temp*")
+                       (insert-file-contents filename)
+                       (current-buffer)))))
       (with-current-buffer buffer
-        (url-cache-extract (url-cache-create-filename url)))
-      (with-temp-buffer
-        (url-insert-buffer-contents buffer url)
         (xml-parse-region (point-min) (point-max))))))
 
 
 (defun svg-lib-icon (icon &optional style &rest args)
   "Create a SVG image displaying icon NAME from COLLECTION using
 given STYLE and style elements ARGS."
-  
+
   (let* ((default svg-lib-style-default)
          (style (if style (apply #'svg-lib-style nil style) default))
          (style (if args  (apply #'svg-lib-style style args) style))
