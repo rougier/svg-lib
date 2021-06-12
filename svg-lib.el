@@ -29,8 +29,8 @@
 ;; Usage example:
 ;;
 ;; (insert-image (svg-lib-tag "TODO"))
-;; (insert-image (svg-lib-progress-bar 0.33))
-;; (insert-image (svg-lib-icon "material" "star"))
+;; (insert-image (svg-lib-progress 0.33))
+;; (insert-image (svg-lib-icon "star"))
 ;;
 ;; Icons ares created by parsing remote collections whose license are
 ;; compatibles with GNU Emacs:
