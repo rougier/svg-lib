@@ -71,6 +71,10 @@
 (require 'xml)
 (require 'cl-lib)
 
+;; Check if Emacs has been compled with svg support
+(if (not (image-type-available-p 'svg))
+    (error (concat "svg-lib.el requires Emacs to be compiled with svg support.\n")))
+
 
 (defgroup svg-lib nil
   "SVG tags, bars & icons."
@@ -249,7 +253,77 @@ and style elements ARGS."
 
 ;; Create a progress bar
 ;; ---------------------------------------------------------------------
-(defun svg-lib-progress (value &optional style &rest args)
+(defun svg-lib-progress-pie (value &optional style &rest args)
+  "Create a progress pie image with value VALUE using given STYLE
+and style elements ARGS."
+
+  (let* ((default svg-lib-style-default)
+         (style (if style (apply #'svg-lib-style nil style) default))
+         (style (if args  (apply #'svg-lib-style style args) style))
+
+         (foreground  (plist-get style :foreground))
+         (background  (plist-get style :background))
+         (stroke      (plist-get style :stroke))
+         (width       (plist-get style :width))
+         (height      (plist-get style :height))
+         (scale       (plist-get style :scale))
+         (margin      (plist-get style :margin))
+         (padding     (plist-get style :padding))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
+         
+         (txt-char-width  (window-font-width))
+         (txt-char-height (window-font-height))
+         
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (ascent          (aref font-info 8))
+         (tag-char-width  (aref font-info 11))
+         (tag-char-height (aref font-info 3))
+
+         (tag-width       (* 2 txt-char-width))
+         (tag-height      (* txt-char-height height))
+
+         (svg-width       (+ tag-width (* margin txt-char-width)))
+         (svg-height      tag-height)
+
+         (tag-x           (/ (- svg-width tag-width) 2))
+
+         (cx              (/ svg-width  2))
+         (cy              (/ svg-height 2))
+         (radius          (/ tag-height 2))
+
+         (iradius         (- radius stroke (/ padding 2)))
+
+         (angle0          (- (/ pi 2)))
+         (x0              (+ cx (* iradius (cos angle0))))
+         (y0              (+ cy (* iradius (sin angle0))))
+
+         (angle1          (+ angle0 (* value 2 pi)))
+         (x1              (+ cx (* iradius (cos angle1))))
+         (y1              (+ cy (* iradius (sin angle1))))
+
+         (large-arc       (if (>= (- angle1 angle0) pi) t nil))
+         (svg (svg-create svg-width svg-height)))
+
+    (if (>= stroke 0.25)
+        (svg-circle svg cx cy radius :fill foreground))
+
+    (svg-circle svg cx cy (- radius (/ stroke 2.0)) :fill background)
+
+    (if (>= (- angle1 angle0) (* pi 2))
+        (svg-circle svg cx cy iradius :fill foreground)
+      (svg-path svg `((moveto ((,cx . ,cy)))
+                    (lineto ((,x0 . ,y0)))
+                    (elliptical-arc ((,iradius ,iradius ,x1 ,y1
+                                      :sweep t :large-arc ,large-arc))))
+              :fill foreground))
+    (svg-image svg :scale 1 :ascent 'center)))
+
+
+;; Create a progress bar
+;; ---------------------------------------------------------------------
+(defun svg-lib-progress-bar (value &optional style &rest args)
   "Create a progress bar image with value VALUE using given STYLE
 and style elements ARGS."
 

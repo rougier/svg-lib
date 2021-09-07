@@ -31,7 +31,7 @@
   
 (defun svg-font-lock-progress_percent (value)
   (svg-image (svg-lib-concat
-              (svg-lib-progress (/ (string-to-number value) 100.0)
+              (svg-lib-progress-bar (/ (string-to-number value) 100.0)
                                 nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 12)
               (svg-lib-tag (concat value "%")
                            nil :stroke 0 :margin 0)) :ascent 'center))
@@ -41,7 +41,7 @@
          (count (float (car seq)))
          (total (float (cadr seq))))
   (svg-image (svg-lib-concat
-              (svg-lib-progress (/ count total) nil
+              (svg-lib-progress-bar (/ count total) nil
                                 :margin 0 :stroke 2 :radius 3 :padding 2 :width 12)
               (svg-lib-tag value nil
                            :stroke 0 :margin 0)) :ascent 'center)))
@@ -57,8 +57,6 @@
 
 #+end_src
 
-#+RESULTS:
-
 * Progress count:   [2/3] 
 :PROPERTIES:
 :END:
@@ -67,10 +65,10 @@
 - [X] Sub-task 2
 - [ ] Sub-task 3
 
-* Progress percent: [100%]
+* Progress percent: [66%]
 :PROPERTIES:
 :END:
 
 - [X] Sub-task 1
 - [X] Sub-task 2
-- [X] Sub-task 3
+- [ ] Sub-task 3
