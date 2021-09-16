@@ -247,7 +247,7 @@ and style elements ARGS."
     (svg-text svg label
               :font-family font-family :font-weight font-weight  :font-size font-size
               :fill foreground :x text-x :y  text-y)
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 
@@ -318,7 +318,7 @@ and style elements ARGS."
                     (elliptical-arc ((,iradius ,iradius ,x1 ,y1
                                       :sweep t :large-arc ,large-arc))))
               :fill foreground))
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 ;; Create a progress bar
@@ -375,7 +375,7 @@ and style elements ARGS."
                        (- tag-height stroke (* 2 padding))
                        :fill foreground :rx (- radius (/ stroke 2.0)))
     
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 
@@ -473,7 +473,7 @@ given STYLE and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-image svg :ascent 'center :scale 1)))
+    (svg-image svg :ascent 'center)))
 
 
 
@@ -560,7 +560,7 @@ and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 
