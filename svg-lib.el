@@ -222,7 +222,7 @@ and style elements ARGS."
 
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
@@ -247,7 +247,7 @@ and style elements ARGS."
     (svg-text svg label
               :font-family font-family :font-weight font-weight  :font-size font-size
               :fill foreground :x text-x :y  text-y)
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 
@@ -276,7 +276,7 @@ and style elements ARGS."
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
@@ -318,7 +318,7 @@ and style elements ARGS."
                     (elliptical-arc ((,iradius ,iradius ,x1 ,y1
                                       :sweep t :large-arc ,large-arc))))
               :fill foreground))
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 
@@ -348,7 +348,7 @@ and style elements ARGS."
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
@@ -376,7 +376,7 @@ and style elements ARGS."
                        (- tag-height stroke (* 2 padding))
                        :fill foreground :rx (- radius (/ stroke 2.0)))
     
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 
@@ -474,7 +474,7 @@ given STYLE and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-image svg :ascent 'center :scale 1)))
+    (svg-image svg :ascent 'center)))
 
 
 
@@ -511,7 +511,7 @@ and style elements ARGS."
          (box-width       (* width txt-char-width))
          (box-height      (* height txt-char-height))
 
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
@@ -561,7 +561,7 @@ and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-image svg :scale 1 :ascent 'center)))
+    (svg-image svg :ascent 'center)))
 
 
 
