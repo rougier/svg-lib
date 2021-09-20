@@ -291,7 +291,7 @@ and style elements ARGS."
 
          (cx              (/ svg-width  2))
          (cy              (/ svg-height 2))
-         (radius          (/ tag-height 2))
+         (radius          (- (/ tag-height 2) (/ stroke 2)))
 
          (iradius         (- radius stroke (/ padding 2)))
 
@@ -319,6 +319,7 @@ and style elements ARGS."
                                       :sweep t :large-arc ,large-arc))))
               :fill foreground))
     (svg-image svg :scale 1 :ascent 'center)))
+
 
 
 ;; Create a progress bar
