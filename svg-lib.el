@@ -75,6 +75,7 @@
 (require 'svg)
 (require 'xml)
 (require 'cl-lib)
+(require 'color)
 
 ;; Check if Emacs has been compiled with svg support
 (if (not (image-type-available-p 'svg))
@@ -212,10 +213,10 @@ and style elements ARGS."
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
-         (width       (plist-get style :width))
+         ;; (width       (plist-get style :width))
          (height      (plist-get style :height))
          (radius      (plist-get style :radius))
-         (scale       (plist-get style :scale))
+         ;; (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
          (font-size   (plist-get style :font-size))
@@ -227,7 +228,7 @@ and style elements ARGS."
          (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
-         (tag-char-height (aref font-info 3))
+         ;; (tag-char-height (aref font-info 3))
          (tag-width       (* (+ (length label) padding) txt-char-width))
          (tag-height      (* txt-char-height height))
 
@@ -265,22 +266,22 @@ and style elements ARGS."
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
-         (width       (plist-get style :width))
+         ;; (width       (plist-get style :width))
          (height      (plist-get style :height))
-         (scale       (plist-get style :scale))
+         ;;  (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
          (font-size   (plist-get style :font-size))
          (font-family (plist-get style :font-family))
-         (font-weight (plist-get style :font-weight))
+         ;; (font-weight (plist-get style :font-weight))
          
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          
          (font-info       (font-info (format "%s-%d" font-family font-size)))
-         (ascent          (aref font-info 8))
-         (tag-char-width  (aref font-info 11))
-         (tag-char-height (aref font-info 3))
+         ;; (ascent          (aref font-info 8))
+         ;; (tag-char-width  (aref font-info 11))
+         ;; (tag-char-height (aref font-info 3))
 
          (tag-width       (* 2 txt-char-width))
          (tag-height      (* txt-char-height height))
@@ -288,7 +289,7 @@ and style elements ARGS."
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
 
-         (tag-x           (/ (- svg-width tag-width) 2))
+         ;; (tag-x           (/ (- svg-width tag-width) 2))
 
          (cx              (/ svg-width  2))
          (cy              (/ svg-height 2))
@@ -296,11 +297,11 @@ and style elements ARGS."
 
          (iradius         (- radius stroke (/ padding 2)))
 
-         (angle0          (- (/ pi 2)))
+         (angle0          (- (/ float-pi 2)))
          (x0              (+ cx (* iradius (cos angle0))))
          (y0              (+ cy (* iradius (sin angle0))))
 
-         (angle1          (+ angle0 (* value 2 pi)))
+         (angle1          (+ angle0 (* value 2 float-pi)))
          (x1              (+ cx (* iradius (cos angle1))))
          (y1              (+ cy (* iradius (sin angle1))))
 
@@ -338,20 +339,20 @@ and style elements ARGS."
          (width       (plist-get style :width))
          (height      (plist-get style :height))
          (radius      (plist-get style :radius))
-         (scale       (plist-get style :scale))
+         ;; (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
          (font-size   (plist-get style :font-size))
          (font-family (plist-get style :font-family))
-         (font-weight (plist-get style :font-weight))
+         ;; (font-weight (plist-get style :font-weight))
 
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          
          (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
-         (tag-char-width  (aref font-info 11))
-         (tag-char-height (aref font-info 3))
+         ;; (tag-char-width  (aref font-info 11))
+         ;; (tag-char-height (aref font-info 3))
 
          (tag-width       (* width txt-char-width))
          (tag-height      (* txt-char-height height))
@@ -425,9 +426,9 @@ given STYLE and style elements ARGS."
          (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
-         (font-size   (plist-get style :font-size))
-         (font-family (plist-get style :font-family))
-         (font-weight (plist-get style :font-weight))
+         ;; (font-size   (plist-get style :font-size))
+         ;; (font-family (plist-get style :font-family))
+         ;; (font-weight (plist-get style :font-weight))
          (width      (+ 2 padding))
          
          (txt-char-width  (window-font-width))
@@ -441,7 +442,7 @@ given STYLE and style elements ARGS."
 
          ;; Read original viewbox
          (viewbox (cdr (assq 'viewBox (xml-node-attributes (car root)))))
-         (viewbox (mapcar 'string-to-number (split-string viewbox)))
+         (viewbox (mapcar #'string-to-number (split-string viewbox)))
          (icon-x      (nth 0 viewbox))
          (icon-y      (nth 1 viewbox))
          (icon-width  (nth 2 viewbox))
@@ -469,7 +470,8 @@ given STYLE and style elements ARGS."
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
              (path (cdr (assoc 'd attrs)))
-             (fill (or (cdr (assoc 'fill attrs)) foreground)))
+             ;; (fill (or (cdr (assoc 'fill attrs)) foreground))
+             )
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
@@ -506,13 +508,13 @@ and style elements ARGS."
                           
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
-         (box-width       (* width txt-char-width))
-         (box-height      (* height txt-char-height))
+         ;; (box-width       (* width txt-char-width))
+         ;; (box-height      (* height txt-char-height))
 
          (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
-         (tag-char-height (aref font-info 3))
+         ;; (tag-char-height (aref font-info 3))
          (tag-width       (* (+ label-length padding) txt-char-width))
          (tag-height      (* txt-char-height height))
 
@@ -555,7 +557,8 @@ and style elements ARGS."
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
              (path (cdr (assoc 'd attrs)))
-             (fill (or (cdr (assoc 'fill attrs)) foreground)))
+             ;; (fill (or (cdr (assoc 'fill attrs)) foreground))
+             )
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
