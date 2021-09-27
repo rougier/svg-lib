@@ -2,8 +2,8 @@
 
 (dotimes (i 5)
   (insert-image (svg-lib-tag "TODO" nil
-                      :font-family "Roboto Mono" :font-weight (* (+ i 2) 100))))
-     
+                             :font-weight (* (+ i 2) 100))))
+
 
 (dotimes (i 10)
   (insert-image (svg-lib-tag "TODO" nil :padding 1 :stroke (/ i 4.0))))

@@ -28,7 +28,7 @@
 ;; Usage example:
 ;;
 ;; (insert-image (svg-lib-tag "TODO"))
-;; (insert-image (svg-lib-progress 0.33))
+;; (insert-image (svg-lib-progress-bar 0.33))
 ;; (insert-image (svg-lib-icon "star"))
 ;;
 ;; Icons ares created by parsing remote collections whose license are
@@ -390,7 +390,7 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
   (let ((url (format (cdr (assoc collection svg-lib-icon-collections)) name)))
     ;; create the svg-lib-icons-dir if not exists
     (unless (file-exists-p svg-lib-icons-dir)
-      (make-directory svg-lib-icons-dir))
+      (make-directory svg-lib-icons-dir t))
     (let* ((filename (expand-file-name (format "%s_%s.svg" collection name) svg-lib-icons-dir))
            (buffer (if (or force-reload (not (file-exists-p filename)))
                        (with-current-buffer (url-retrieve-synchronously url)
