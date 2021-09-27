@@ -20,7 +20,7 @@
 
 (insert-image (svg-lib-progress-bar 0.75 nil :radius 8 :stroke 2 :padding 0))
  
- 
+
 (dotimes (i 10)
   (insert-image (svg-lib-progress-pie (/ (+ i 1) 10.0) nil
                     :margin 1 :stroke 2 :padding 1)))
@@ -29,12 +29,12 @@
 (dotimes (i 10)
   (insert-image (svg-lib-icon "star" nil :scale (/ (+ i 1) 10.0))))
           
-          
+
 (insert-image (svg-lib-button "check-bold" "DONE" nil
                               :font-family "Roboto Mono"
                               :font-weight 500
                          :stroke 0 :background "#673AB7" :foreground "white"))
-  
+ 
 
 (insert-image (svg-lib-icon "gnuemacs" nil :collection "simple"
                             :stroke 0 :scale 1 :padding 0))

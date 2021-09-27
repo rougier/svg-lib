@@ -1,13 +1,12 @@
-;;; svg-lib.el --- SVG tags, bars & icons -*- lexical-binding: t -*-
+;;; svg-lib.el --- SVG tags, progress bars & icons -*- lexical-binding: t -*-
 
-;; Copyright (C) 2021 Nicolas P. Rougier
+;; Copyright (C) 2021 Free Software Foundation, Inc.
 
-;; Author: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
-;; Homepage: https://github.com/rougier/svg-lib
-;; Keywords: convenience
+;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
+;; URL: https://github.com/rougier/svg-lib
 ;; Version: 0.1
-
 ;; Package-Requires: ((emacs "27.1"))
+;; Keywords: svg, icons, tags, convenience
 
 ;; This file is not part of GNU Emacs.
 
@@ -36,22 +35,22 @@
 ;; compatibles with GNU Emacs:
 ;;
 ;; - Boxicons (https://github.com/atisawd/boxicons), available under a
-;;   Creative Commons 4.0 license.  As of version 2.07 (December 2020),
+;;   Creative Commons 4.0 license. As of version 2.07 (December 2020),
 ;;   this collection offers 1500 icons in two styles (regular & solid).
 ;;   Gallery is available at https://boxicons.com/
 ;;
 ;; - Octicons (https://github.com/primer/octicons), available under a
-;;   MIT License with some usage restriction for the GitHub logo.  As of
+;;   MIT License with some usage restriction for the GitHub logo. As of
 ;;   version 11.2.0 (December 2020), this collection offers 201 icons.
 ;;   Gallery available at https://primer.style/octicons/
 ;;
 ;; - Material (https://github.com/google/material-design-icons),
-;;   available under an Apache 2.0 license.  As of version 4.0.0
+;;   available under an Apache 2.0 license. As of version 4.0.0
 ;;   (December 2020), this collection offers 500+ icons in 4 styles
-;;   (filled, outlined, rounded, sharp).  Gallery available at
+;;   (filled, outlined, rounded, sharp). Gallery available at
 ;;   https://material.io/resources/icons/?style=baseline
 ;;
-;; - Bootstrap (https://github.com/twbs/icons), available under an MIT
+;; - Bootstrap (https://github.com/twbs/icons), available under a MIT
 ;;   license.  As of version 1.2.1 (December 2020), this collection
 ;;   offers 1200+ icons in 2 styles (regular & filled).  Gallery
 ;;   available at https://icons.getbootstrap.com/
@@ -60,20 +59,26 @@
 ;; can be inserted inside a text without disturbing alignment.
 ;;
 ;; Note: Each icon is cached locally to speed-up loading the next time
-;;       you use it.  If for some reason the cache is corrupted you can
+;;       you use it. If for some reason the cache is corrupted you can
 ;;       force reload using the svg-icon-get-data function.
 ;;
 ;; If you want to add new collections (i.e. URL), make sure the icons
 ;; are monochrome, their size is consistent.
+
+;;; NEWS:
+
+;; Version 0.1:
+;; - Submission to ELPA
+
 
 ;;; Code:
 (require 'svg)
 (require 'xml)
 (require 'cl-lib)
 
-;; Check if Emacs has been compled with svg support
+;; Check if Emacs has been compiled with svg support
 (if (not (image-type-available-p 'svg))
-    (error (concat "svg-lib.el requires Emacs to be compiled with svg support.\n")))
+    (error "svg-lib.el requires Emacs to be compiled with svg support.\n"))
 
 
 (defgroup svg-lib nil
@@ -113,8 +118,8 @@ collection (there are way too many to store them)."
   :group 'svg-lib
   :type 'directory)
 
+
 ;; Default style for all objects
-;; ---------------------------------------------------------------------
 (defun svg-lib-style-compute-default (&optional face)
   "Compute the default style according to face (which defaults
 to the default face)."
@@ -153,7 +158,6 @@ to the default face)."
 
 
 ;; Convert Emacs color to SVG color
-;; ---------------------------------------------------------------------
 (defun svg-lib-convert-color (color-name)
   "Convert Emacs COLOR-NAME to #rrggbb form.
 If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
@@ -165,7 +169,6 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
 
 
 ;; SVG Library style build from partial specification
-;; ---------------------------------------------------------------------
 (defun svg-lib-style (&optional base &rest args)
   "Build a news style using BASE and style elements ARGS."
   
@@ -198,7 +201,6 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
 
 
 ;; Create an image displaying LABEL in a rounded box.
-;; ---------------------------------------------------------------------
 (defun svg-lib-tag (label &optional style &rest args)
   "Create an image displaying LABEL in a rounded box using given STYLE
 and style elements ARGS."
@@ -251,8 +253,7 @@ and style elements ARGS."
 
 
 
-;; Create a progress bar
-;; ---------------------------------------------------------------------
+;; Create a progress pie
 (defun svg-lib-progress-pie (value &optional style &rest args)
   "Create a progress pie image with value VALUE using given STYLE
 and style elements ARGS."
@@ -323,7 +324,6 @@ and style elements ARGS."
 
 
 ;; Create a progress bar
-;; ---------------------------------------------------------------------
 (defun svg-lib-progress-bar (value &optional style &rest args)
   "Create a progress bar image with value VALUE using given STYLE
 and style elements ARGS."
@@ -381,7 +381,6 @@ and style elements ARGS."
 
 
 ;; Create a rounded box icon
-;; ---------------------------------------------------------------------
 (defun svg-lib--icon-get-data (collection name &optional force-reload)
   "Retrieve icon NAME from COLLECTION.
 
@@ -479,7 +478,6 @@ given STYLE and style elements ARGS."
 
 
 ;; Create an image displaying LABEL in a rounded box.
-;; ---------------------------------------------------------------------
 (defun svg-lib-button (icon label &optional style &rest args)
   "Create an image displaying LABEL in a rounded box using given STYLE
 and style elements ARGS."
