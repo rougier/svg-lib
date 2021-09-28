@@ -63,9 +63,12 @@
 ;;       force reload using the svg-icon-get-data function.
 ;;
 ;; If you want to add new collections (i.e. URL), make sure the icons
-;; are monochrome, their size is consistent.
+;; are monochrome and that their size is consistent.
 
 ;;; NEWS:
+
+;; Version 0.2
+;; - Fix most of the warnings.
 
 ;; Version 0.1:
 ;; - Submission to ELPA
