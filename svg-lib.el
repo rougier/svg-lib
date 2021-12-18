@@ -249,15 +249,15 @@ and style elements ARGS."
          (tag-width       (- box-width (if (>= stroke 0.25) stroke 0)))
 
          (box-x           margin)
-         (box-y           0)
+         (box-y           1)
          (tag-x           (+ margin (/ stroke 2.0)))
-         (tag-y           (/ stroke 2.0))
+         (tag-y           (+ box-y (/ stroke 2.0)))
 
          (svg-height      (* txt-char-height height))
-         (box-height      svg-height)
+         (box-height      (- svg-height box-y))
          (tag-height      (- box-height stroke))
          (text-x          (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
-         (text-y          ascent)
+         (text-y          (+ ascent box-y))
          
          (svg (svg-create svg-width svg-height)))
 
