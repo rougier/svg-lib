@@ -253,9 +253,9 @@ and style elements ARGS."
          (tag-x           (+ margin (/ stroke 2.0)))
          (tag-y           (/ stroke 2.0))
 
-         (box-height      (* txt-char-height height))
+         (svg-height      (* txt-char-height height))
+         (box-height      svg-height)
          (tag-height      (- box-height stroke))
-         (svg-height      box-height)
          (text-x          (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
          (text-y          ascent)
          
