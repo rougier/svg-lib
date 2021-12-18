@@ -227,28 +227,44 @@ and style elements ARGS."
          (font-weight (plist-get style :font-weight))
 
          (txt-char-width  (window-font-width))
+         (txt-width       (* txt-char-width (length label)))
          (txt-char-height (window-font-height))
+
          (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
+         (tag-txt-width   (* tag-char-width (length label)))
          ;; (tag-char-height (aref font-info 3))
-         (tag-width       (* (+ (length label) padding) txt-char-width))
-         (tag-height      (* txt-char-height height))
 
-         (svg-width       (+ tag-width (* margin txt-char-width)))
-         (svg-height      tag-height)
+         (total-width     (+ tag-txt-width stroke (* padding 2) (* margin 2)))
+         (svg-width       (if (= (mod total-width
+                                      txt-char-width)
+                                 0)
+                              total-width
+                            (* (+ (truncate (/ total-width
+                                               txt-char-width))
+                                  1)
+                               txt-char-width)))
+         (box-width       (- svg-width (* margin 2)))
+         (tag-width       (- box-width (if (>= stroke 0.25) stroke 0)))
 
-         (tag-x (/ (- svg-width tag-width) 2))
-         (text-x (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
-         (text-y ascent)
+         (box-x           margin)
+         (box-y           0)
+         (tag-x           (+ margin (/ stroke 2.0)))
+         (tag-y           (/ stroke 2.0))
+
+         (box-height      (* txt-char-height height))
+         (tag-height      (- box-height stroke))
+         (svg-height      box-height)
+         (text-x          (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
+         (text-y          ascent)
          
          (svg (svg-create svg-width svg-height)))
 
     (if (>= stroke 0.25)
-        (svg-rectangle svg tag-x 0 tag-width tag-height
+        (svg-rectangle svg box-x box-y box-width box-height
                            :fill foreground :rx radius))
-    (svg-rectangle svg (+ tag-x (/ stroke 2.0)) (/ stroke 2.0)
-                       (- tag-width stroke) (- tag-height stroke)
+    (svg-rectangle svg tag-x tag-y tag-width tag-height
                        :fill background :rx (- radius (/ stroke 2.0)))
     (svg-text svg label
               :font-family font-family :font-weight font-weight  :font-size font-size
