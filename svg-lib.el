@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2
+;; Version: 0.2.1
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -66,6 +66,9 @@
 ;; are monochrome and that their size is consistent.
 
 ;;; NEWS:
+
+;; Version 0.2.1
+;; - Added an alignment parameter for moving tags inside margins.
 
 ;; Version 0.2
 ;; - Fix most of the warnings.
@@ -138,11 +141,12 @@ to the default face)."
 
     `(:background    ,background
       :foreground    ,foreground
-                     
+
       :padding       1      ;; In characters (tag and icons) or pixels (progress)
-      :margin        1      ;; In chracters
+      :margin        1      ;; In characters
       :stroke        2      ;; In pixels
       :radius        3      ;; In pixels
+      :alignment     0.5    ;; Horizontal alignment (in fraction of margin)
       :width         20     ;; In characters
       :height        0.90   ;; Ratio of text line height
       :scale         0.75   ;; Icon scaling
@@ -215,6 +219,8 @@ and style elements ARGS."
 
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
+
+         (alignment  (plist-get style :alignment))
          (stroke      (plist-get style :stroke))
          ;; (width       (plist-get style :width))
          (height      (plist-get style :height))
@@ -238,7 +244,9 @@ and style elements ARGS."
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
 
-         (tag-x (/ (- svg-width tag-width) 2))
+         ;; (tag-x (/ (- svg-width tag-width) 2))
+         (tag-x  (* (- svg-width tag-width)  alignment))
+         
          (text-x (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
          (text-y ascent)
          
