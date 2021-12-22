@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.1
+;; Version: 0.2.2
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -66,6 +66,9 @@
 ;; are monochrome and that their size is consistent.
 
 ;;; NEWS:
+
+;; Version 0.2.2
+;; - Added a left/righ crop style argument to allow for tags collage.
 
 ;; Version 0.2.1
 ;; - Added an alignment parameter for moving tags inside margins.
@@ -150,6 +153,8 @@ to the default face)."
       :width         20     ;; In characters
       :height        0.90   ;; Ratio of text line height
       :scale         0.75   ;; Icon scaling
+      :crop-left     nil    ;; Wheter to crop on left (for collage with other tags)
+      :crop-right    nil    ;; Wheter to crop on righ (for collage with other tags)
 
       :collection    "material" ;; Icon collection
       
@@ -220,7 +225,10 @@ and style elements ARGS."
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
 
-         (alignment  (plist-get style :alignment))
+         (crop-left   (plist-get style :crop-left))
+         (crop-right  (plist-get style :crop-right))
+
+         (alignment   (plist-get style :alignment))
          (stroke      (plist-get style :stroke))
          ;; (width       (plist-get style :width))
          (height      (plist-get style :height))
@@ -244,11 +252,15 @@ and style elements ARGS."
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
 
-         ;; (tag-x (/ (- svg-width tag-width) 2))
          (tag-x  (* (- svg-width tag-width)  alignment))
-         
          (text-x (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
          (text-y ascent)
+
+         (tag-x      (if crop-left  (- tag-x     txt-char-width) tag-x))
+         (tag-width  (if crop-left  (+ tag-width txt-char-width) tag-width))
+         (text-x     (if crop-left  (- text-x (/ stroke 2)) text-x))
+         (tag-width  (if crop-right (+ tag-width txt-char-width) tag-width))
+         (text-x     (if crop-right (+ text-x (/ stroke 2)) text-x))
          
          (svg (svg-create svg-width svg-height)))
 
@@ -262,7 +274,6 @@ and style elements ARGS."
               :font-family font-family :font-weight font-weight  :font-size font-size
               :fill foreground :x text-x :y  text-y)
     (svg-image svg :ascent 'center)))
-
 
 
 ;; Create a progress pie
