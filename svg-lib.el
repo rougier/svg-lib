@@ -242,6 +242,9 @@ and style elements ARGS."
 
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
+         (txt-char-height (if line-spacing
+                              (+ txt-char-height line-spacing)
+                          txt-char-height))
          (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
