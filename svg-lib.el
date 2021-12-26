@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.2
+;; Version: 0.2.3
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -146,7 +146,7 @@ to the default face)."
       :foreground    ,foreground
 
       :padding       1      ;; In characters (tag and icons) or pixels (progress)
-      :margin        1      ;; In characters
+      :margin        0      ;; In characters
       :stroke        2      ;; In pixels
       :radius        3      ;; In pixels
       :alignment     0.5    ;; Horizontal alignment (in fraction of margin)
