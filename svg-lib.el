@@ -87,8 +87,8 @@
 (require 'color)
 
 ;; Check if Emacs has been compiled with svg support
-(if (not (image-type-available-p 'svg))
-    (error "svg-lib.el requires Emacs to be compiled with svg support.\n"))
+(unless (image-type-available-p 'svg)
+  (error "svg-lib.el requires Emacs to be compiled with svg support.\n"))
 
 
 (defgroup svg-lib nil
@@ -244,7 +244,7 @@ and style elements ARGS."
          (txt-char-height (window-font-height))
          (txt-char-height (if line-spacing
                               (+ txt-char-height line-spacing)
-                          txt-char-height))
+                            txt-char-height))
          (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
@@ -267,9 +267,9 @@ and style elements ARGS."
          
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= stroke 0.25)
-        (svg-rectangle svg tag-x 0 tag-width tag-height
-                           :fill foreground :rx radius))
+    (when (>= stroke 0.25)
+      (svg-rectangle svg tag-x 0 tag-width tag-height
+                     :fill foreground :rx radius))
     (svg-rectangle svg (+ tag-x (/ stroke 2.0)) (/ stroke 2.0)
                        (- tag-width stroke) (- tag-height stroke)
                        :fill background :rx (- radius (/ stroke 2.0)))
@@ -330,11 +330,11 @@ and style elements ARGS."
          (x1              (+ cx (* iradius (cos angle1))))
          (y1              (+ cy (* iradius (sin angle1))))
 
-         (large-arc       (if (>= (- angle1 angle0) pi) t nil))
+         (large-arc       (>= (- angle1 angle0) pi))
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= stroke 0.25)
-        (svg-circle svg cx cy radius :fill foreground))
+    (when (>= stroke 0.25)
+      (svg-circle svg cx cy radius :fill foreground))
 
     (svg-circle svg cx cy (- radius (/ stroke 2.0)) :fill background)
 
@@ -388,9 +388,9 @@ and style elements ARGS."
          (tag-x (/ (- svg-width tag-width) 2))
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= stroke 0.25)
-        (svg-rectangle svg tag-x 0 tag-width tag-height
-                       :fill foreground :rx radius))
+    (when (>= stroke 0.25)
+      (svg-rectangle svg tag-x 0 tag-width tag-height
+                     :fill foreground :rx radius))
     (svg-rectangle svg (+ tag-x (/ stroke 2.0))
                        (/ stroke 2.0)
                        (- tag-width stroke)
@@ -483,9 +483,9 @@ given STYLE and style elements ARGS."
 
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= stroke 0.25)
-        (svg-rectangle svg box-x box-y box-width box-height
-                       :fill foreground :rx radius))
+    (when (>= stroke 0.25)
+      (svg-rectangle svg box-x box-y box-width box-height
+                     :fill foreground :rx radius))
     (svg-rectangle svg (+ box-x (/ stroke 2.0))
                        (+ box-y (/ stroke 2.0))
                        (- box-width stroke)
@@ -568,9 +568,9 @@ and style elements ARGS."
                   (- (/ svg-height 2 scale) (/ icon-height 2))))
          (svg (svg-create svg-width svg-height)))
 
-    (if (>= stroke 0.25)
-        (svg-rectangle svg tag-x 0 tag-width tag-height
-                           :fill foreground :rx radius))
+    (when (>= stroke 0.25)
+      (svg-rectangle svg tag-x 0 tag-width tag-height
+                     :fill foreground :rx radius))
     (svg-rectangle svg (+ tag-x (/ stroke 2.0)) (/ stroke 2.0)
                        (- tag-width stroke) (- tag-height stroke)
                        :fill background :rx (- radius (/ stroke 2.0)))
@@ -619,8 +619,8 @@ and style elements ARGS."
      (dom-append-child svg child))
 
    (dolist (child children-2)
-     (if (not (stringp child))
-         (dom-set-attribute child 'transform transform))
+     (unless (stringp child)
+       (dom-set-attribute child 'transform transform))
      (dom-append-child svg child))
    svg))
 
