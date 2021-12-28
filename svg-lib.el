@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.3
+;; Version: 0.2.4
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -67,6 +67,9 @@
 
 ;;; NEWS:
 
+;; Version 0.2.4
+;; - Better error handling if SVG support is missing
+
 ;; Version 0.2.2
 ;; - Added a left/righ crop style argument to allow for tags collage.
 
@@ -87,8 +90,11 @@
 (require 'color)
 
 ;; Check if Emacs has been compiled with svg support
-(if (not (image-type-available-p 'svg))
-    (error "svg-lib.el requires Emacs to be compiled with svg support.\n"))
+(defun svg-lib--image (&rest args)
+  ;; FIXME: Should `svg-image' perform this check instead?
+  (unless (image-type-available-p 'svg)
+     (error "svg-lib.el requires Emacs to be compiled with svg support.\n"))
+  (apply #'svg-image args))
 
 
 (defgroup svg-lib nil
@@ -276,7 +282,7 @@ and style elements ARGS."
     (svg-text svg label
               :font-family font-family :font-weight font-weight  :font-size font-size
               :fill foreground :x text-x :y  text-y)
-    (svg-image svg :ascent 'center)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 ;; Create a progress pie
@@ -345,7 +351,7 @@ and style elements ARGS."
                     (elliptical-arc ((,iradius ,iradius ,x1 ,y1
                                       :sweep t :large-arc ,large-arc))))
               :fill foreground))
-    (svg-image svg :ascent 'center)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
@@ -402,7 +408,7 @@ and style elements ARGS."
                        (- tag-height stroke (* 2 padding))
                        :fill foreground :rx (- radius (/ stroke 2.0)))
     
-    (svg-image svg :ascent 'center)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
@@ -500,7 +506,7 @@ given STYLE and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-image svg :ascent 'center)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
@@ -587,7 +593,7 @@ and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-image svg :ascent 'center)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
