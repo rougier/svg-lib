@@ -252,6 +252,7 @@ and style elements ARGS."
                               (+ txt-char-height line-spacing)
                           txt-char-height))
          (font-info       (font-info (format "%s-%d" font-family font-size)))
+         (font-size       (aref font-info 2)) ;; redefine font-size
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          ;; (tag-char-height (aref font-info 3))
