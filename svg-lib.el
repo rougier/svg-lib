@@ -193,7 +193,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
   
   (let* ((default svg-lib-style-default)
          (base (or base default))
-         (keys (cl-loop for (key value) on default by 'cddr
+         (keys (cl-loop for (key _value) on default by 'cddr
                         collect key))
          (style '()))
 
