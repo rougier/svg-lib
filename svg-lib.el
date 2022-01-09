@@ -337,7 +337,7 @@ and style elements ARGS."
          (x1              (+ cx (* iradius (cos angle1))))
          (y1              (+ cy (* iradius (sin angle1))))
 
-         (large-arc       (if (>= (- angle1 angle0) pi) t nil))
+         (large-arc       (if (>= (- angle1 angle0) float-pi) t nil))
          (svg (svg-create svg-width svg-height)))
 
     (if (>= stroke 0.25)
@@ -345,7 +345,7 @@ and style elements ARGS."
 
     (svg-circle svg cx cy (- radius (/ stroke 2.0)) :fill background)
 
-    (if (>= (- angle1 angle0) (* pi 2))
+    (if (>= (- angle1 angle0) (* float-pi 2))
         (svg-circle svg cx cy iradius :fill foreground)
       (svg-path svg `((moveto ((,cx . ,cy)))
                     (lineto ((,x0 . ,y0)))
