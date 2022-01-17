@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.4
+;; Version: 0.2.5
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -66,6 +66,9 @@
 ;; are monochrome and that their size is consistent.
 
 ;;; NEWS:
+
+;; Version 0.2.5
+;; - Bug fix in text size computation
 
 ;; Version 0.2.4
 ;; - Better error handling if SVG support is missing
