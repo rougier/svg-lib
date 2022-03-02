@@ -1,4 +1,4 @@
-;; Copyright (C) 2021 Free Software Foundation, Inc.
+;; Copyright (C) 2021 Free Software Foundation, Inc. -*- lexical-binding: t; -*-
 
 ;; This file is not part of GNU Emacs.
 
