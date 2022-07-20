@@ -99,6 +99,7 @@
      (error "svg-lib.el requires Emacs to be compiled with svg support.\n"))
   (apply #'svg-image args))
 
+
 (defgroup svg-lib nil
   "SVG tags, bars & icons."
   :group 'convenience
@@ -161,9 +162,8 @@ to the default face)."
       :width         20     ;; In characters
       :height        0.90   ;; Ratio of text line height
       :scale         0.75   ;; Icon scaling
-      :ascent        center ;; Position / baseline
-      :crop-left     nil    ;; Whether to crop on left (for collage with other tags)
-      :crop-right    nil    ;; Whether to crop on righ (for collage with other tags)
+      :crop-left     nil    ;; Wheter to crop on left (for collage with other tags)
+      :crop-right    nil    ;; Wheter to crop on righ (for collage with other tags)
 
       :collection    "material" ;; Icon collection
       
@@ -253,7 +253,7 @@ and style elements ARGS."
          (txt-char-height (window-font-height))
          (txt-char-height (if line-spacing
                               (+ txt-char-height line-spacing)
-                            txt-char-height))
+                          txt-char-height))
          (font-info       (font-info (format "%s-%d" font-family font-size)))
          (font-size       (aref font-info 2)) ;; redefine font-size
          (ascent          (aref font-info 8))
@@ -264,8 +264,7 @@ and style elements ARGS."
 
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
-         (svg-ascent      (plist-get style :ascent))
-         
+
          (tag-x  (* (- svg-width tag-width)  alignment))
          (text-x (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
          (text-y ascent)
@@ -278,16 +277,16 @@ and style elements ARGS."
          
          (svg (svg-create svg-width svg-height)))
 
-    (when (>= stroke 0.25)
-      (svg-rectangle svg tag-x 0 tag-width tag-height
-                     :fill foreground :rx radius))
+    (if (>= stroke 0.25)
+        (svg-rectangle svg tag-x 0 tag-width tag-height
+                           :fill foreground :rx radius))
     (svg-rectangle svg (+ tag-x (/ stroke 2.0)) (/ stroke 2.0)
                        (- tag-width stroke) (- tag-height stroke)
                        :fill background :rx (- radius (/ stroke 2.0)))
     (svg-text svg label
               :font-family font-family :font-weight font-weight  :font-size font-size
               :fill foreground :x text-x :y  text-y)
-    (svg-lib--image svg :ascent svg-ascent)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 ;; Create a progress pie
@@ -324,8 +323,7 @@ and style elements ARGS."
 
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
-         (svg-ascent      (plist-get style :ascent))
-         
+
          ;; (tag-x           (/ (- svg-width tag-width) 2))
 
          (cx              (/ svg-width  2))
@@ -342,11 +340,11 @@ and style elements ARGS."
          (x1              (+ cx (* iradius (cos angle1))))
          (y1              (+ cy (* iradius (sin angle1))))
 
-         (large-arc       (>= (- angle1 angle0) pi))
+         (large-arc       (if (>= (- angle1 angle0) pi) t nil))
          (svg (svg-create svg-width svg-height)))
 
-    (when (>= stroke 0.25)
-      (svg-circle svg cx cy radius :fill foreground))
+    (if (>= stroke 0.25)
+        (svg-circle svg cx cy radius :fill foreground))
 
     (svg-circle svg cx cy (- radius (/ stroke 2.0)) :fill background)
 
@@ -357,7 +355,7 @@ and style elements ARGS."
                     (elliptical-arc ((,iradius ,iradius ,x1 ,y1
                                       :sweep t :large-arc ,large-arc))))
               :fill foreground))
-    (svg-lib--image svg :ascent svg-ascent)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
@@ -396,14 +394,13 @@ and style elements ARGS."
 
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
-         (svg-ascent      (plist-get style :ascent))
-         
+
          (tag-x (/ (- svg-width tag-width) 2))
          (svg (svg-create svg-width svg-height)))
 
-    (when (>= stroke 0.25)
-      (svg-rectangle svg tag-x 0 tag-width tag-height
-                     :fill foreground :rx radius))
+    (if (>= stroke 0.25)
+        (svg-rectangle svg tag-x 0 tag-width tag-height
+                       :fill foreground :rx radius))
     (svg-rectangle svg (+ tag-x (/ stroke 2.0))
                        (/ stroke 2.0)
                        (- tag-width stroke)
@@ -415,7 +412,7 @@ and style elements ARGS."
                        (- tag-height stroke (* 2 padding))
                        :fill foreground :rx (- radius (/ stroke 2.0)))
     
-    (svg-lib--image svg :ascent svg-ascent)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
@@ -475,7 +472,6 @@ given STYLE and style elements ARGS."
          (box-height      (* height txt-char-height))
          (svg-width       (+ box-width (* margin txt-char-width)))
          (svg-height      box-height)
-         (svg-ascent      (plist-get style :ascent))
          (box-x           (/ (- svg-width box-width) 2))
          (box-y           0)
 
@@ -497,9 +493,9 @@ given STYLE and style elements ARGS."
 
          (svg (svg-create svg-width svg-height)))
 
-    (when (>= stroke 0.25)
-      (svg-rectangle svg box-x box-y box-width box-height
-                     :fill foreground :rx radius))
+    (if (>= stroke 0.25)
+        (svg-rectangle svg box-x box-y box-width box-height
+                       :fill foreground :rx radius))
     (svg-rectangle svg (+ box-x (/ stroke 2.0))
                        (+ box-y (/ stroke 2.0))
                        (- box-width stroke)
@@ -514,7 +510,7 @@ given STYLE and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-lib--image svg :ascent svg-ascent)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
@@ -559,7 +555,6 @@ and style elements ARGS."
 
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
-         (svg-ascent      (plist-get style :ascent))
          
          (tag-x (/ (- svg-width tag-width) 2))
          (text-x (+ tag-x (/ (- tag-width (* (length label) tag-char-width)) 2)))
@@ -583,9 +578,9 @@ and style elements ARGS."
                   (- (/ svg-height 2 scale) (/ icon-height 2))))
          (svg (svg-create svg-width svg-height)))
 
-    (when (>= stroke 0.25)
-      (svg-rectangle svg tag-x 0 tag-width tag-height
-                     :fill foreground :rx radius))
+    (if (>= stroke 0.25)
+        (svg-rectangle svg tag-x 0 tag-width tag-height
+                           :fill foreground :rx radius))
     (svg-rectangle svg (+ tag-x (/ stroke 2.0)) (/ stroke 2.0)
                        (- tag-width stroke) (- tag-height stroke)
                        :fill background :rx (- radius (/ stroke 2.0)))
@@ -602,7 +597,7 @@ and style elements ARGS."
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
-    (svg-lib--image svg :ascent svg-ascent)))
+    (svg-lib--image svg :ascent 'center)))
 
 
 
@@ -627,15 +622,18 @@ and style elements ARGS."
 
         (width (+ width-1 width-2))
         (height (max height-1 height-2))
-        (transform (format "translate(%f,0)" width-1))
+        (transform-1 (format "translate(0,%f)" (/ (- height height-1) 2)))
+        (transform-2 (format "translate(%f,%f)" width-1 (/ (- height height-2) 2)))
         (svg (svg-create width height)))
 
    (dolist (child children-1)
+     (unless (stringp child)
+         (dom-set-attribute child 'transform transform-1))
      (dom-append-child svg child))
 
    (dolist (child children-2)
      (unless (stringp child)
-       (dom-set-attribute child 'transform transform))
+         (dom-set-attribute child 'transform transform-2))
      (dom-append-child svg child))
    svg))
 
