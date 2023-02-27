@@ -116,7 +116,9 @@
     ("octicons" .
      "https://raw.githubusercontent.com/primer/octicons/master/icons/%s-24.svg")
     ("boxicons" .
-     "https://boxicons.com/static/img/svg/regular/bx-%s.svg"))
+     "https://boxicons.com/static/img/svg/regular/bx-%s.svg")
+    ("vscode" .
+     "https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/light/%s.svg"))
     
   "Various icons collections stored as (name . base-url).
 
