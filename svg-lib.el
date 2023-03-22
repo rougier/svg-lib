@@ -1,10 +1,10 @@
 ;;; svg-lib.el --- SVG tags, progress bars & icons -*- lexical-binding: t -*-
 
-;; Copyright (C) 2021 Free Software Foundation, Inc.
+;; Copyright (C) 2021-2023 Free Software Foundation, Inc.
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.5
+;; Version: 0.2.6
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -66,6 +66,9 @@
 ;; are monochrome and that their size is consistent.
 
 ;;; NEWS:
+
+;; Version 0.2.6
+;; - Bug fix with bootstrap icon directory
 
 ;; Version 0.2.5
 ;; - Bug fix in text size computation
