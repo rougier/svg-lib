@@ -108,7 +108,7 @@
 ;; ---------------------------------------------------------------------
 (defcustom  svg-lib-icon-collections
   '(("bootstrap" .
-     "https://icons.getbootstrap.com/icons/%s.svg")
+     "https://icons.getbootstrap.com/assets/icons/%s.svg")
     ("simple" .
      "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/%s.svg")
     ("material" .
