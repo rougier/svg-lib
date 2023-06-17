@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.6
+;; Version: 0.2.7
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -66,6 +66,9 @@
 ;; are monochrome and that their size is consistent.
 
 ;;; NEWS:
+
+;; Version 0.2.7
+;; - Added a dynamic date icon
 
 ;; Version 0.2.6
 ;; - Bug fix with bootstrap icon directory
@@ -630,6 +633,83 @@ and style elements ARGS."
     (svg-lib--image svg :ascent svg-ascent)))
 
 
+(defun svg-lib-date (&optional date style &rest args)
+  "Create a two lines date icon showing given DATE, using given
+STYLE and style elements ARGS."
+
+  (let* ((default svg-lib-style-default)
+         (style (if style (apply #'svg-lib-style nil style) default))
+         (style (if args  (apply #'svg-lib-style style args) style))
+
+         (date (or date (current-time)))
+         (month (upcase (format-time-string "%b" date)))
+         (day (format-time-string "%d" date))
+            
+         (foreground  (plist-get style :foreground))
+         (background  (plist-get style :background))
+         (alignment   (plist-get style :alignment))
+         (stroke      (plist-get style :stroke))
+         (width       (or (plist-get args :width) 5))
+         (height      (or (plist-get args :height) 2))
+         (radius      (plist-get style :radius))
+         (margin      (plist-get style :margin))
+         
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
+
+         (txt-char-width  (window-font-width))
+         (txt-char-height (window-font-height))
+         
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
+         (ascent          (aref font-info 8))
+         (tag-char-width  (aref font-info 11))
+         (tag-char-height (aref font-info 3))
+         (tag-width       (* width txt-char-width))
+         
+         (tag-height      (* height txt-char-height))
+         (svg-width       (+ tag-width (* margin txt-char-width)))
+         (svg-height      tag-height)
+         (svg-ascent      (or (plist-get style :ascent) 'center))
+         (tag-x           (/ (- svg-width tag-width) 2) )
+
+         (svg (svg-create svg-width svg-height)))
+    
+    (when (>= stroke 0.25)
+      (svg-rectangle svg tag-x 0 tag-width tag-height
+                     :fill foreground :rx radius))
+    (svg-rectangle svg (+ tag-x (/ stroke 2.0))
+                       (/ stroke 2.0)
+                       (- tag-width stroke)
+                       (- tag-height stroke)
+                       :fill background :rx (- radius (/ stroke 2.0)))
+    (svg-rectangle svg (+ tag-x (/ stroke 2.0))
+                       (/ stroke 2.0)
+                       (- tag-width stroke)
+                       (- (/ tag-height 2) stroke)
+                       :fill foreground :rx (- radius (/ stroke 2.0)))
+    (svg-rectangle svg (+ tag-x (/ stroke 2.0))
+                       (+ (/ stroke 2.0) (/ tag-height 3))
+                       (- tag-width stroke)
+                       (- (/ tag-height 2) stroke)
+                       :fill background :rx 0)
+    (svg-text svg month
+              :font-family font-family
+              :font-weight "bold"
+              :font-size (* font-size 0.9)
+              :fill background
+              :text-anchor "middle"
+              :x (/ svg-width 2)
+              :y "+0.95em")
+    (svg-text svg day
+              :font-family font-family
+              :font-weight "bold"
+              :font-size (* font-size 1.7)
+              :fill foreground ;;(face-foreground 'default)
+              :text-anchor "middle"
+              :x (/ svg-width 2)
+              :y "+1.6em")
+    (svg-lib--image svg :ascent svg-ascent)))
 
 (defun svg-lib-concat (svg-image-1 svg-image-2)
   "Concatenate two svg images horizontally."
