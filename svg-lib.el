@@ -224,7 +224,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
   
   (let* ((default svg-lib-style-default)
          (base (or base default))
-         (keys (cl-loop for (key value) on default by 'cddr
+         (keys (cl-loop for (key _value) on default by 'cddr
                         collect key))
          (style '()))
 
@@ -370,7 +370,7 @@ and style elements ARGS."
          (x1              (+ cx (* iradius (cos angle1))))
          (y1              (+ cy (* iradius (sin angle1))))
 
-         (large-arc       (>= (- angle1 angle0) pi))
+         (large-arc       (>= (- angle1 angle0) float-pi))
          (svg (svg-create svg-width svg-height)))
 
     (when (>= stroke 0.25)
@@ -378,7 +378,7 @@ and style elements ARGS."
 
     (svg-circle svg cx cy (- radius (/ stroke 2.0)) :fill background)
 
-    (if (>= (- angle1 angle0) (* pi 2))
+    (if (>= (- angle1 angle0) (* float-pi 2))
         (svg-circle svg cx cy iradius :fill foreground)
       (svg-path svg `((moveto ((,cx . ,cy)))
                     (lineto ((,x0 . ,y0)))
