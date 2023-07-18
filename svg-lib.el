@@ -211,11 +211,12 @@ to the default face)."
 (defun svg-lib-convert-color (color-name)
   "Convert Emacs COLOR-NAME to #rrggbb form.
 If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
-  
-  (let ((rgb-color (color-name-to-rgb color-name)))
-    (if rgb-color
-        (apply #'color-rgb-to-hex (append rgb-color '(2)))
-      color-name)))
+
+  (when color-name
+    (let ((rgb-color (color-name-to-rgb color-name)))
+      (if rgb-color
+          (apply #'color-rgb-to-hex (append rgb-color '(2)))
+        color-name))))
 
 
 ;; SVG Library style build from partial specification
@@ -528,11 +529,12 @@ given STYLE and style elements ARGS."
     (when (>= stroke 0.25)
       (svg-rectangle svg box-x box-y box-width box-height
                      :fill foreground :rx radius))
-    (svg-rectangle svg (+ box-x (/ stroke 2.0))
-                       (+ box-y (/ stroke 2.0))
-                       (- box-width stroke)
-                       (- box-height stroke)
-                       :fill background :rx (- radius (/ stroke 2.0)))
+    (when background
+      (svg-rectangle svg (+ box-x (/ stroke 2.0))
+                         (+ box-y (/ stroke 2.0))
+                         (- box-width stroke)
+                         (- box-height stroke)
+                         :fill background :rx (- radius (/ stroke 2.0))))
     
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
