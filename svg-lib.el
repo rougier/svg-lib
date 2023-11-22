@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.7
+;; Version: 0.2.8
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -69,6 +69,7 @@
 
 ;; Version 0.2.8
 ;; - No background for icon when background color is nil
+;; - Refactored date icons
 
 ;; Version 0.2.7
 ;; - Added a dynamic date icon
@@ -214,13 +215,11 @@ to the default face)."
 (defun svg-lib-convert-color (color-name)
   "Convert Emacs COLOR-NAME to #rrggbb form.
 If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
-
   (when color-name
     (let ((rgb-color (color-name-to-rgb color-name)))
       (if rgb-color
           (apply #'color-rgb-to-hex (append rgb-color '(2)))
-        color-name))))
-
+	color-name))))
 
 ;; SVG Library style build from partial specification
 (defun svg-lib-style (&optional base &rest args)
@@ -534,10 +533,10 @@ given STYLE and style elements ARGS."
                      :fill foreground :rx radius))
     (when background
       (svg-rectangle svg (+ box-x (/ stroke 2.0))
-                         (+ box-y (/ stroke 2.0))
-                         (- box-width stroke)
-                         (- box-height stroke)
-                         :fill background :rx (- radius (/ stroke 2.0))))
+                     (+ box-y (/ stroke 2.0))
+                     (- box-width stroke)
+                     (- box-height stroke)
+                     :fill background :rx (- radius (/ stroke 2.0))))
     
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
