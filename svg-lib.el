@@ -31,7 +31,7 @@
 ;; (insert-image (svg-lib-progress-bar 0.33))
 ;; (insert-image (svg-lib-icon "star"))
 ;;
-;; Icons ares created by parsing remote collections whose license are
+;; Icons are created by parsing remote collections, whose license are
 ;; compatibles with GNU Emacs:
 ;;
 ;; - Boxicons (https://github.com/atisawd/boxicons), available under a
