@@ -52,10 +52,10 @@
   (insert-image (svg-lib-icon "star" nil :scale (/ (+ i 1) 10.0))))
           
 
-(insert-image (svg-lib-button "check-bold" "DONE" nil
+(insert-image (svg-lib-icon+tag "check-bold" "DONE" nil
                               :font-family "Roboto Mono"
                               :font-weight 500
-                         :stroke 0 :background "#673AB7" :foreground "white"))
+                              :stroke 0 :background "#673AB7" :foreground "white"))
  
 
 (insert-image (svg-lib-icon "gnuemacs" nil :collection "simple"
@@ -65,5 +65,9 @@
 (insert-image (svg-lib-date nil nil :font-family "Roboto" :radius 5
                                     :foreground "#673AB7"))
  
- 
+(svg-lib-button-mode 1)
+(insert (svg-lib-button "[check-bold] OK"
+                        (lambda () (interactive) (message "OK"))))
+
+
 

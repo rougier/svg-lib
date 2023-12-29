@@ -4,7 +4,7 @@
 
 ;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
 ;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2.8
+;; Version: 0.3
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: svg, icons, tags, convenience
 
@@ -67,6 +67,11 @@
 
 ;;; NEWS:
 
+;; Version 0.3
+;; - Renamed 'svg-lib-button' to 'svg-lib-icon+tag'
+;; - Added interactive 'svg-lib-button' with associtated 'svg-lib-button-mode'
+;; - Added proper documentation in the README
+
 ;; Version 0.2.8
 ;; - No background for icon when background color is nil
 ;; - Refactored date icons
@@ -113,6 +118,33 @@
   "SVG tags, bars & icons."
   :group 'convenience
   :prefix "svg-lib-")
+
+(defface svg-lib-button-active-face
+  `((t :foreground ,(face-foreground 'default)
+       :background ,(face-background 'default)
+       :family "RobotoMono Nerd Font"
+       :weight regular
+       :box (:line-width 2 :style nil)))
+  "Default face for active button"
+  :group 'svg-lib)
+
+(defface svg-lib-button-hover-face
+  `((t :foreground ,(face-background 'font-lock-comment-face nil 'default)
+       :background ,(face-foreground 'font-lock-comment-face nil 'default)
+       :family "RobotoMono Nerd Font"
+       :weight semibold
+       :box nil))
+  "default face for when mouse is over the button"
+  :group 'svg-lib)
+
+(defface svg-lib-button-press-face
+  `((t :foreground ,(face-background 'default)
+       :background ,(face-foreground 'default)
+       :family "RobotoMono Nerd Font"
+       :weight semibold
+       :box nil))
+  "Default face for when button is prssed (mouse click or keyboard)"
+  :group 'svg-lib)
 
 ;; Default icon collections
 ;; ---------------------------------------------------------------------
@@ -485,7 +517,6 @@ given STYLE and style elements ARGS."
 
          (collection  (plist-get style :collection))
          (root (svg-lib--icon-get-data collection icon))
-
          
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
@@ -551,7 +582,7 @@ given STYLE and style elements ARGS."
 
 
 ;; Create an image displaying LABEL in a rounded box.
-(defun svg-lib-button (icon label &optional style &rest args)
+(defun svg-lib-icon+tag (icon label &optional style &rest args)
   "Create an image displaying LABEL in a rounded box using given STYLE
 and style elements ARGS."
 
@@ -770,6 +801,240 @@ given STYLE and style elements ARGS."
        (dom-set-attribute child 'transform transform))
      (dom-append-child svg child))
    svg))
+
+
+(defvar svg-lib-button--id-counter 0
+  "SVG button unique id counter")
+
+(defun svg-lib-button--search (id)
+  "Return region for the button with given ID"
+
+  (save-excursion
+    (goto-char (point-min))
+    (save-match-data
+      (when-let* ((match (text-property-search-forward 'button-id id t)))
+        (cons (prop-match-beginning match)
+              (prop-match-end match))))))
+
+(defun svg-lib-button--at-point (&optional pos)
+  "Return the button at point"
+  (get-text-property (or pos (point)) 'button-id))
+
+(defun svg-lib-button--get-state (id &optional region)
+  "Return the state of button ID"
+  
+  (when-let* ((region (or region (svg-lib-button--search id))))
+    (get-text-property (car region) 'button-state)))
+
+(defun svg-lib-button--set-state (id state &optional no-reset)
+  "Set the state of button ID to STATE, reset the state of any
+hovered button unless NO-RESET is t"
+
+  ;; Reset previous hover button state (if any)
+  (when (and (boundp 'svg-lib-button--hover-id) svg-lib-button--hover-id (not no-reset))
+    (let ((prev-id svg-lib-button--hover-id))
+      (setq-local svg-lib-button--hover-id nil)
+      (svg-lib-button--set-state prev-id 'active)))
+
+  ;; Set new state
+  (when-let* ((region (svg-lib-button--search id))
+              (cur-state (svg-lib-button--get-state id region))
+              (button-list (get-text-property (car region) 'button-list))
+              (display (cdr (assoc state button-list))))
+        (put-text-property (car region) (cdr region) 'display display)
+        (put-text-property (car region) (cdr region) 'button-state state)
+        (cond ((eq state 'hover)
+               (setq-local svg-lib-button--hover-id id))
+              ((eq state 'press)
+               (setq-local svg-lib-button--press-id id)))))
+
+(defun svg-lib-button--tooltip-hide (&rest args)
+  "Set currently press or hightlighted button to default
+state (active) and hover button at point if any."
+
+  (when (boundp 'svg-lib-button--press-id)
+    (svg-lib-button--set-state svg-lib-button--press-id 'active))
+  (when (boundp 'svg-lib-button--hover-id)
+    (svg-lib-button--set-state svg-lib-button--hover-id 'active))
+
+  ;; Hover button at point (if any)
+  (svg-lib-button--set-state (svg-lib-button--at-point) 'hover)
+  (advice-remove 'tooltip-hide #'svg-lib-button--tooltip-hide))
+
+(defun svg-lib-button--tooltip-show (pos)
+  "Set button under mouse state to hover or press depending
+on whether mouse button 1 is down (press) or up (hover)"
+
+  (if (and (consp last-input-event)
+           (string-match-p "down-mouse-1" (format "%s" (car last-input-event))))
+      (svg-lib-button--set-state (svg-lib-button--at-point pos) 'press)
+    (svg-lib-button--set-state (svg-lib-button--at-point pos) 'hover))
+  (advice-add 'tooltip-hide :before #'svg-lib-button--tooltip-hide))
+
+(defun svg-lib-button--mouse-down ()
+  "Set button under mouse state to press."
+
+  (interactive)
+  (save-excursion
+    (mouse-set-point last-input-event)
+    (svg-lib-button--set-state (svg-lib-button--at-point) 'press))
+  (advice-add 'tooltip-hide :before #'svg-lib-button--tooltip-hide))
+
+(defun svg-lib-button--mouse-press ()
+    "Set button under mouse state to default state (active) and call
+button hook. If current buffer is minibuffer, it aborts it. It
+would be better to simply exit minibuffer but this leads to focus
+problem if the hook creates a frame."
+
+  (interactive)
+
+  ;; Here we check if mouse is still over the button
+  (let ((mouse-point (save-excursion
+                       (mouse-set-point last-input-event)
+                       (point))))
+    (if-let ((id (svg-lib-button--at-point mouse-point)))
+        (svg-lib-button--set-state svg-lib-button--press-id 'hover)
+      (svg-lib-button--set-state svg-lib-button--press-id 'active)))
+  
+  (when-let* ((region (svg-lib-button--search svg-lib-button--press-id))
+              (hook (get-text-property (car region) 'button-hook)))
+    (if (minibufferp nil t)
+        (unwind-protect
+            (abort-minibuffers)
+          (funcall hook))
+      (funcall hook))))
+ 
+(defun svg-lib-button--mouse-drag ()
+  "Update the state of the button under mouse"
+  
+  (interactive)
+  (save-excursion
+    (mouse-set-point last-input-event)
+    (svg-lib-button--set-state (svg-lib-button--at-point) 'press)))
+
+(defun svg-lib-button--make (label &optional face)
+  "Return a svg tag with given LABEL and FACE. LABEL can be composed
+as \"[collection:icon] label\" resulting in an icon+tag button."
+
+  (save-match-data
+    (let* ((face (or face 'default))
+           (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)"))
+      (if (string-match label-regex label)
+          (let* ((collection (match-string 1 label))
+                 (collection (if (stringp collection)
+                                 (substring collection 0 -1)
+                               (plist-get svg-lib-style-default ':collection)))
+                 (icon       (match-string 2 label))
+                 (label      (match-string 3 label)))
+            (svg-lib-icon+tag icon label nil
+                              :collection collection
+                              :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
+                              :font-family (face-attribute face :family nil t)
+                              :font-weight (face-attribute face :weight nil t)
+                              :foreground (face-foreground face nil 'default)
+                              :background (face-background face nil 'default)))
+        (svg-lib-tag label nil
+                     :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
+                     :font-family (face-attribute face :family nil t)
+                     :font-weight (face-attribute face :weight nil t)
+                     :foreground (face-foreground face nil 'default)
+                     :background (face-background face nil 'default))))))
+
+
+(defun svg-lib-button (label &optional hook help active-face hover-face press-face)
+  "Make a button with given LABEL that will call HOOK when
+pressed. The HELP text is displatyed when mouse is hovering the
+button. ACTIVE-FACE, HOVER-FACE and PRESS-FACE correspond to the
+different states of the button. LABEL can be composed as
+\"[collection:icon] label\" resulting in an icon+tag button.
+
+For proper highlighting, `svg-lib-button-mode' needs to be
+activated before inserting a button into a buffer."
+
+  ;; Having a SVG button highlighted when mouse cursor is hovering is
+  ;; not totally straightforward because Emacs lacks the proper
+  ;; machinery to do so. There is actually a mouse-face property but it
+  ;; only changes the face and cannot change the display property (that
+  ;; is needed for SVG). To solve the problem, we can take advantage of
+  ;; the tooltip machinery because it offers a hackable enter/exit event
+  ;; that can be used to update the display at the proper time.
+  ;;
+  ;; To make this works, a few properties needs to be removed from
+  ;; `font-lock-extra-managed-props' and `yank-excluded-properties'.
+  ;; For org-mode, another hack is necessary because when org-mode
+  ;; unfontifies a region (see `org-unfontify-region'), it removes the
+  ;; local keymap that is used. You thus need to activate the
+  ;; svg-lib-button-mode to have this set for you.
+  
+  (let* ((active (svg-lib-button--make label
+                          (or active-face 'svg-lib-button-active-face)))
+         (hover (svg-lib-button--make label
+                          (or hover-face 'svg-lib-button-hover-face)))
+         (press (svg-lib-button--make label
+                          (or press-face 'svg-lib-button-press-face)))
+         (buttons `((active . ,active)
+                    (hover . ,hover)
+                    (press . ,press)))
+         (state 'active))
+    (setq svg-lib-button--id-counter (1+ svg-lib-button--id-counter))
+    (propertize (concat label " ")
+                'display (cdr (assoc state buttons))
+                'svg-lib-button t
+                'button-id svg-lib-button--id-counter
+                'button-state state
+                'button-list buttons
+                'button-hook hook
+                'front-sticky nil
+                'rear-nonsticky t
+                'keymap (define-keymap :suppress t
+                          "<down-mouse-1>" #'svg-lib-button--mouse-down
+                          "<mouse-1>"      #'svg-lib-button--mouse-press
+                          "<drag-mouse-1>" #'svg-lib-button--mouse-drag)
+                'help-echo `(lambda (_window _object pos)
+                              (svg-lib-button--tooltip-show pos)
+                               ,help)
+                'pointer 'hand)))
+
+(defun svg-lib-button--remove-text-properties (orig-fun beg end properties &optional object)
+  "This advice function ensures keymap is not removed when in svg-lib-button-mode"
+
+  (let ((properties (if (and svg-lib-button-mode (derived-mode-p 'org-mode))
+                        (org-plist-delete properties 'keymap)
+                       properties)))
+    (apply orig-fun (list beg end properties object))))
+
+(define-minor-mode svg-lib-button-mode
+  "Activate svg-lib-button-mode that takes care of activating tooltip
+mode and removing some properties from `yank-excluded-properties'
+and `font-lock-extra-managed-props' in order for highlight to
+work properly. This mode also installs an advice on
+`remove-text-properties' in org-mode in order to not delete the
+`keymap' property that is necessary to detect mouse press events."
+
+  :lighter "B"
+
+  (when svg-lib-button-mode
+    ;; This is necessary for detecting when mouse cursor enter or
+    ;; leave a button
+    (require 'tooltip)
+    (tooltip-mode 1)
+
+    ;; This is necessary for preventing org-mode to remove keymap when
+    ;; unfontiying a region
+    (advice-add #'remove-text-properties :around #'svg-lib-button--remove-text-properties)
+
+    ;; This prevents help-echo to be removed.when button is copied/yanked
+    (dolist (property '(help-echo keymap))
+      (setq-local yank-excluded-properties
+                  (remove property yank-excluded-properties)))
+
+    ;; This prevents help-echo to be removed.by font-lock
+    (dolist (property '(help-echo keymap display))
+      (setq-local font-lock-extra-managed-props
+                  (remove property font-lock-extra-managed-props))))
+  
+  (unless svg-lib-button-mode
+    (advice-remove #'remove-text-properties #'svg-lib-button--remove-text-properties)))
 
 (provide 'svg-lib)
 ;;; svg-lib.el ends here
