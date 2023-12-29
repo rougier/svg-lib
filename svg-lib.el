@@ -67,6 +67,9 @@
 
 ;;; NEWS:
 
+;; Version 0.3.1
+;; - Added icon only button
+
 ;; Version 0.3
 ;; - Renamed 'svg-lib-button' to 'svg-lib-icon+tag'
 ;; - Added interactive 'svg-lib-button' with associtated 'svg-lib-button-mode'
@@ -912,7 +915,7 @@ as \"[collection:icon] label\" resulting in an icon+tag button."
 
   (save-match-data
     (let* ((face (or face 'default))
-           (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)"))
+           (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)?"))
       (if (string-match label-regex label)
           (let* ((collection (match-string 1 label))
                  (collection (if (stringp collection)
@@ -920,13 +923,21 @@ as \"[collection:icon] label\" resulting in an icon+tag button."
                                (plist-get svg-lib-style-default ':collection)))
                  (icon       (match-string 2 label))
                  (label      (match-string 3 label)))
-            (svg-lib-icon+tag icon label nil
-                              :collection collection
-                              :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
-                              :font-family (face-attribute face :family nil t)
-                              :font-weight (face-attribute face :weight nil t)
-                              :foreground (face-foreground face nil 'default)
-                              :background (face-background face nil 'default)))
+            (if (and (stringp label) (> (length label) 0))
+                (svg-lib-icon+tag icon label nil
+                                  :collection collection
+                                  :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
+                                  :font-family (face-attribute face :family nil t)
+                                  :font-weight (face-attribute face :weight nil t)
+                                  :foreground (face-foreground face nil 'default)
+                                  :background (face-background face nil 'default))
+              (svg-lib-icon icon nil
+                                :collection collection
+                                :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
+                                :font-family (face-attribute face :family nil t)
+                                :font-weight (face-attribute face :weight nil t)
+                                :foreground (face-foreground face nil 'default)
+                                :background (face-background face nil 'default))))
         (svg-lib-tag label nil
                      :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
                      :font-family (face-attribute face :family nil t)
