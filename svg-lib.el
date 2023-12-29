@@ -31,7 +31,7 @@
 ;; (insert-image (svg-lib-progress-bar 0.33))
 ;; (insert-image (svg-lib-icon "star"))
 ;;
-;; Icons ares created by parsing remote collections whose license are
+;; Icons are created by parsing remote collections, whose license are
 ;; compatibles with GNU Emacs:
 ;;
 ;; - Boxicons (https://github.com/atisawd/boxicons), available under a
@@ -705,7 +705,6 @@ given STYLE and style elements ARGS."
 
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
-         (alignment   (plist-get style :alignment))
          (stroke      (plist-get style :stroke))
          (width       (or (plist-get args :width) 5))
          (height      (or (plist-get args :height) 2))
@@ -714,15 +713,10 @@ given STYLE and style elements ARGS."
          
          (font-size   (plist-get style :font-size))
          (font-family (plist-get style :font-family))
-         (font-weight (plist-get style :font-weight))
 
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          
-         (font-info       (font-info (format "%s-%d" font-family font-size)))
-         (ascent          (aref font-info 8))
-         (tag-char-width  (aref font-info 11))
-         (tag-char-height (aref font-info 3))
          (tag-width       (* width txt-char-width))
          
          (tag-height      (* height txt-char-height))
