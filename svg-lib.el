@@ -305,7 +305,6 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
                         :font-weight ,font-weight))
          (base svg-lib-style-default)
          (keys (cl-loop for (key _value) on base by 'cddr collect key)))
-
     (dolist (key keys)
       (cond ((plist-member args key)
              (plist-put style key (plist-get args key)))
@@ -322,7 +321,7 @@ and additional style elements ARGS."
          (style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
-                       (apply #'svg-lib-style style args))
+                       (apply #'svg-lib-style face-or-style args))
                       (t
                        svg-lib-style-default)))
          (foreground  (plist-get style :foreground))
@@ -383,7 +382,7 @@ and additional style elements ARGS."
          (style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
-                       (apply #'svg-lib-style style args))
+                       (apply #'svg-lib-style face-or-style args))
                       (t
                        svg-lib-style-default)))
          (foreground  (plist-get style :foreground))
@@ -437,7 +436,7 @@ and additional style elements ARGS."
          (style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
-                       (apply #'svg-lib-style style args))
+                       (apply #'svg-lib-style face-or-style args))
                       (t
                        svg-lib-style-default)))
          (foreground  (plist-get style :foreground))
@@ -507,7 +506,7 @@ given FACE-OR-STYLE and additional style elements ARGS."
          (style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
-                       (apply #'svg-lib-style style args))
+                       (apply #'svg-lib-style face-or-style args))
                       (t
                        svg-lib-style-default)))
          (collection  (plist-get style :collection))
@@ -578,7 +577,7 @@ and additional style elements ARGS."
          (style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
-                       (apply #'svg-lib-style style args))
+                       (apply #'svg-lib-style face-or-style args))
                       (t
                        svg-lib-style-default)))
          (collection (plist-get style :collection))
@@ -681,7 +680,7 @@ given STYLE and style elements ARGS."
          (style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
-                       (apply #'svg-lib-style style args))
+                       (apply #'svg-lib-style face-or-style args))
                       (t
                        svg-lib-style-default)))
          (foreground  (plist-get style :foreground))
