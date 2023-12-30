@@ -999,6 +999,12 @@ activated before inserting a button into a buffer."
                        properties)))
     (apply orig-fun (list beg end properties object))))
 
+(defvar svg-lib-button-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-s") 'svg-lib-button--key-press)
+    map)
+  "Keymap for svg-lib-button-mode.")
+
 (define-minor-mode svg-lib-button-mode
   "Activate svg-lib-button-mode that takes care of activating tooltip
 mode and removing some properties from `yank-excluded-properties'
@@ -1008,6 +1014,8 @@ work properly. This mode also installs an advice on
 `keymap' property that is necessary to detect mouse press events."
 
   :lighter "B"
+
+  :keymap svg-lib-button-mode-map
 
   (when svg-lib-button-mode
     ;; This is necessary for detecting when mouse cursor enter or
