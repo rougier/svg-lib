@@ -940,16 +940,18 @@ activated before inserting a button into a buffer."
                        (t
                         (svg-lib-button--make label 'default
                                               :font-family (plist-get svg-lib-style-default ':font-family)
-                                             :font-weight 'regular))))
+                                              :font-weight 'regular))))
          (hover (cond ((facep hover)
                        (svg-lib-button--make label hover))
                       ((and (listp hover) hover)
                        (apply #'svg-lib-button--make label (car hover) (cdr hover)))
                       (t
                        (svg-lib-button--make label 'default
-                                             :background (face-background 'highlight nil 'default)
+                                             :foreground (face-background 'default nil 'default)
+                                             :background (face-foreground 'font-lock-comment-face nil 'default)
+                                             :stroke 0
                                              :font-family (plist-get svg-lib-style-default ':font-family)
-                                             :font-weight 'regular))))
+                                             :font-weight 'semibold))))
          (press (cond ((facep press)
                         (svg-lib-button--make label press))
                        ((and (listp press) press)
