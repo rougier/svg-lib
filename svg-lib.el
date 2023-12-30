@@ -287,6 +287,32 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
                      (plist-get style :font-weight))))
     style))
 
+(defun svg-lib-style-from-face (face &rest args)
+  "Return a style from FACE and style element ARGS"
+  
+  (let* ((font-family (face-attribute face :family nil 'default))
+         (font-weight (face-attribute face :weight nil 'default))
+         (font-size   (face-attribute face :height nil 'default))
+         (font-size   (round (* font-size 0.085)))
+         (foreground  (face-attribute face :foreground nil 'default))
+         (background  (face-attribute face :background nil 'default))
+         (stroke      (or (plist-get (face-attribute face :box) ':line-width) nil))
+         (style       `(:background ,background
+                        :foreground ,foreground
+                        ,@(when stroke `(:stroke stroke))
+                        :font-family ,font-family
+                        :font-size ,font-size
+                        :font-weight ,font-weight))
+         (base svg-lib-style-default)
+         (keys (cl-loop for (key _value)
+                        on base by 'cddr collect key)))
+
+    (dolist (key keys)
+      (cond ((plist-member args key)
+             (plist-put style key (plist-get args key)))
+            ((not (plist-member style key))
+             (plist-put style key (plist-get base key)))))
+    (svg-lib-style style)))
 
 ;; Create an image displaying LABEL in a rounded box.
 (defun svg-lib-tag (label &optional style &rest args)
