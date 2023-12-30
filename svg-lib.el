@@ -881,12 +881,17 @@ problem if the hook creates a frame."
     (mouse-set-point last-input-event)
     (svg-lib-button--set-state (svg-lib-button--at-point) 'press)))
 
-(defun svg-lib-button--make (label &optional face)
+(defun svg-lib-button--make (label &optional face-or-style &rest args)
   "Return a svg tag with given LABEL and FACE. LABEL can be composed
 as \"[collection:icon] label\" resulting in an icon+tag button."
 
   (save-match-data
-    (let* ((face (or face 'default))
+    (let* ((style (cond ((facep face-or-style)
+                         (apply #'svg-lib-style-from-face face-or-style args))
+                        (face-or-style
+                         (apply #'svg-lib-style face-or-style args))
+                        (t
+                         svg-lib-style-default)))
            (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)?"))
       (if (string-match label-regex label)
           (let* ((collection (match-string 1 label))
@@ -896,34 +901,19 @@ as \"[collection:icon] label\" resulting in an icon+tag button."
                  (icon       (match-string 2 label))
                  (label      (match-string 3 label)))
             (if (and (stringp label) (> (length label) 0))
-                (svg-lib-icon+tag icon label nil
-                                  :collection collection
-                                  :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
-                                  :font-family (face-attribute face :family nil t)
-                                  :font-weight (face-attribute face :weight nil t)
-                                  :foreground (face-foreground face nil 'default)
-                                  :background (face-background face nil 'default))
-              (svg-lib-icon icon nil
-                                :collection collection
-                                :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
-                                :font-family (face-attribute face :family nil t)
-                                :font-weight (face-attribute face :weight nil t)
-                                :foreground (face-foreground face nil 'default)
-                                :background (face-background face nil 'default))))
-        (svg-lib-tag label nil
-                     :stroke (or (plist-get (face-attribute face :box) ':line-width) 0)
-                     :font-family (face-attribute face :family nil t)
-                     :font-weight (face-attribute face :weight nil t)
-                     :foreground (face-foreground face nil 'default)
-                     :background (face-background face nil 'default))))))
+                (svg-lib-icon+tag icon label style :collection collection)
+              (svg-lib-icon icon style :collection collection)))
+        (svg-lib-tag label style)))))
 
 
-(defun svg-lib-button (label &optional hook help active-face hover-face press-face)
+(defun svg-lib-button (label &optional hook help active hover press)
   "Make a button with given LABEL that will call HOOK when
-pressed. The HELP text is displatyed when mouse is hovering the
-button. ACTIVE-FACE, HOVER-FACE and PRESS-FACE correspond to the
-different states of the button. LABEL can be composed as
-\"[collection:icon] label\" resulting in an icon+tag button.
+pressed. The HELP text is displayed when mouse is hovering the
+button. ACTIVE, HOVER and PRESS correspond to the different
+states of the button and can be specified as a face-or-style or a
+cons of face-or-style and additional style elements. LABEL can be
+composed as \"[collection:icon] label\" resulting in an icon+tag
+button.
 
 For proper highlighting, `svg-lib-button-mode' needs to be
 activated before inserting a button into a buffer."
@@ -942,13 +932,35 @@ activated before inserting a button into a buffer."
   ;; unfontifies a region (see `org-unfontify-region'), it removes the
   ;; local keymap that is used. You thus need to activate the
   ;; svg-lib-button-mode to have this set for you.
-  
-  (let* ((active (svg-lib-button--make label
-                          (or active-face 'svg-lib-button-active-face)))
-         (hover (svg-lib-button--make label
-                          (or hover-face 'svg-lib-button-hover-face)))
-         (press (svg-lib-button--make label
-                          (or press-face 'svg-lib-button-press-face)))
+
+  (let* ((active (cond ((facep active)
+                        (svg-lib-button--make label active))
+                       ((and (listp active) active)
+                        (apply #'svg-lib-button--make label (car active) (cdr active)))
+                       (t
+                        (svg-lib-button--make label 'default
+                                              :font-family (plist-get svg-lib-style-default ':font-family)
+                                             :font-weight 'regular))))
+         (hover (cond ((facep hover)
+                       (svg-lib-button--make label hover))
+                      ((and (listp hover) hover)
+                       (apply #'svg-lib-button--make label (car hover) (cdr hover)))
+                      (t
+                       (svg-lib-button--make label 'default
+                                             :background (face-background 'highlight nil 'default)
+                                             :font-family (plist-get svg-lib-style-default ':font-family)
+                                             :font-weight 'regular))))
+         (press (cond ((facep press)
+                        (svg-lib-button--make label press))
+                       ((and (listp press) press)
+                        (apply #'svg-lib-button--make label (car press) (cdr press)))
+                       (t
+                        (svg-lib-button--make label 'default
+                                              :foreground (face-background 'default)
+                                              :background (face-foreground 'default)
+                                              :stroke 0
+                                              :font-family (plist-get svg-lib-style-default ':font-family)
+                                              :font-weight 'semibold))))
          (buttons `((active . ,active)
                     (hover . ,hover)
                     (press . ,press)))
