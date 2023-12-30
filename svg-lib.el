@@ -323,7 +323,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       svg-lib-style-default)))
+                       (apply #'svg-lib-style svg-lib-style-default args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (crop-left   (plist-get style :crop-left))
@@ -384,7 +384,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       svg-lib-style-default)))
+                       (apply #'svg-lib-style svg-lib-style-default args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
@@ -438,7 +438,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       svg-lib-style-default)))
+                       (apply #'svg-lib-style svg-lib-style-default args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
@@ -508,7 +508,7 @@ given FACE-OR-STYLE and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       svg-lib-style-default)))
+                       (apply #'svg-lib-style svg-lib-style-default args))))
          (collection  (plist-get style :collection))
          (root (svg-lib--icon-get-data collection icon))
          (foreground  (plist-get style :foreground))
@@ -579,7 +579,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       svg-lib-style-default)))
+                       (apply #'svg-lib-style svg-lib-style-default args))))
          (collection (plist-get style :collection))
          (root (svg-lib--icon-get-data collection icon))         
          (foreground  (plist-get style :foreground))
@@ -682,7 +682,7 @@ given STYLE and style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       svg-lib-style-default)))
+                       (apply #'svg-lib-style svg-lib-style-default args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
