@@ -312,11 +312,38 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
              (plist-put style key (plist-get base key)))))
     (svg-lib-style style)))
 
-;; Create an image displaying LABEL in a rounded box.
+
+
 (defun svg-lib-tag (label &optional face-or-style &rest args)
   "Create an image displaying LABEL in a rounded box using given FACE-OR-STYLE
 and additional style elements ARGS."
 
+  (save-match-data
+    (let* ((style (cond ((facep face-or-style)
+                         (apply #'svg-lib-style-from-face face-or-style args))
+                        (face-or-style
+                         (apply #'svg-lib-style face-or-style args))
+                        (t
+                         svg-lib-style-default)))
+           (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)?"))
+      (if (string-match label-regex label)
+          (let* ((collection (match-string 1 label))
+                 (collection (if (stringp collection)
+                                 (substring collection 0 -1)
+                               (plist-get svg-lib-style-default ':collection)))
+                 (icon       (match-string 2 label))
+                 (label      (match-string 3 label)))
+            (if (and (stringp label) (> (length label) 0))
+                (svg-lib-icon+tag icon label style :collection collection)
+              (svg-lib-icon icon style :collection collection)))
+        (svg-lib-text-tag label style)))))
+
+
+;; Create an image displaying LABEL in a rounded box.
+(defun svg-lib-text-tag (label &optional face-or-style &rest args)
+  "Create an image displaying LABEL in a rounded box using given FACE-OR-STYLE
+and additional style elements ARGS."
+  
   (let* ((default svg-lib-style-default)
          (style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
@@ -881,31 +908,6 @@ problem if the hook creates a frame."
     (mouse-set-point last-input-event)
     (svg-lib-button--set-state (svg-lib-button--at-point) 'press)))
 
-(defun svg-lib-button--make (label &optional face-or-style &rest args)
-  "Return a svg tag with given LABEL and FACE. LABEL can be composed
-as \"[collection:icon] label\" resulting in an icon+tag button."
-
-  (save-match-data
-    (let* ((style (cond ((facep face-or-style)
-                         (apply #'svg-lib-style-from-face face-or-style args))
-                        (face-or-style
-                         (apply #'svg-lib-style face-or-style args))
-                        (t
-                         svg-lib-style-default)))
-           (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)?"))
-      (if (string-match label-regex label)
-          (let* ((collection (match-string 1 label))
-                 (collection (if (stringp collection)
-                                 (substring collection 0 -1)
-                               (plist-get svg-lib-style-default ':collection)))
-                 (icon       (match-string 2 label))
-                 (label      (match-string 3 label)))
-            (if (and (stringp label) (> (length label) 0))
-                (svg-lib-icon+tag icon label style :collection collection)
-              (svg-lib-icon icon style :collection collection)))
-        (svg-lib-tag label style)))))
-
-
 (defun svg-lib-button (label &optional hook help active hover press)
   "Make a button with given LABEL that will call HOOK when
 pressed. The HELP text is displayed when mouse is hovering the
@@ -934,35 +936,35 @@ activated before inserting a button into a buffer."
   ;; svg-lib-button-mode to have this set for you.
 
   (let* ((active (cond ((facep active)
-                        (svg-lib-button--make label active))
+                        (svg-lib-tag label active))
                        ((and (listp active) active)
-                        (apply #'svg-lib-button--make label (car active) (cdr active)))
+                        (apply #'svg-lib-tag label (car active) (cdr active)))
                        (t
-                        (svg-lib-button--make label 'default
-                                              :font-family (plist-get svg-lib-style-default ':font-family)
-                                              :font-weight 'regular))))
+                        (svg-lib-tag label 'default
+                                     :font-family (plist-get svg-lib-style-default ':font-family)
+                                     :font-weight 'regular))))
          (hover (cond ((facep hover)
-                       (svg-lib-button--make label hover))
+                       (svg-lib-tag label hover))
                       ((and (listp hover) hover)
-                       (apply #'svg-lib-button--make label (car hover) (cdr hover)))
+                       (apply #'svg-lib-tag label (car hover) (cdr hover)))
                       (t
-                       (svg-lib-button--make label 'default
-                                             :foreground (face-background 'default nil 'default)
-                                             :background (face-foreground 'font-lock-comment-face nil 'default)
-                                             :stroke 0
-                                             :font-family (plist-get svg-lib-style-default ':font-family)
-                                             :font-weight 'semibold))))
+                       (svg-lib-tag label 'default
+                                    :foreground (face-background 'default nil 'default)
+                                    :background (face-foreground 'font-lock-comment-face nil 'default)
+                                    :stroke 0
+                                    :font-family (plist-get svg-lib-style-default ':font-family)
+                                    :font-weight 'semibold))))
          (press (cond ((facep press)
-                        (svg-lib-button--make label press))
+                        (svg-lib-tag label press))
                        ((and (listp press) press)
-                        (apply #'svg-lib-button--make label (car press) (cdr press)))
+                        (apply #'svg-lib-tag label (car press) (cdr press)))
                        (t
-                        (svg-lib-button--make label 'default
-                                              :foreground (face-background 'default)
-                                              :background (face-foreground 'default)
-                                              :stroke 0
-                                              :font-family (plist-get svg-lib-style-default ':font-family)
-                                              :font-weight 'semibold))))
+                        (svg-lib-tag label 'default
+                                     :foreground (face-background 'default)
+                                     :background (face-foreground 'default)
+                                     :stroke 0
+                                     :font-family (plist-get svg-lib-style-default ':font-family)
+                                     :font-weight 'semibold))))
          (buttons `((active . ,active)
                     (hover . ,hover)
                     (press . ,press)))
