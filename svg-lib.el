@@ -313,7 +313,6 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
     (svg-lib-style style)))
 
 
-
 (defun svg-lib-tag (label &optional face-or-style &rest args)
   "Create an image displaying LABEL in a rounded box using given FACE-OR-STYLE
 and additional style elements ARGS."
@@ -323,8 +322,8 @@ and additional style elements ARGS."
                          (apply #'svg-lib-style-from-face face-or-style args))
                         (face-or-style
                          (apply #'svg-lib-style face-or-style args))
-                        (t
-                         svg-lib-style-default)))
+                      (t
+                       (apply #'svg-lib-style svg-lib-style-default args))))
            (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)?"))
       (if (string-match label-regex label)
           (let* ((collection (match-string 1 label))
