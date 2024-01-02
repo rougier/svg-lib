@@ -69,6 +69,9 @@
 
 ;; Version 0.3.1
 ;; - Added icon only button
+;; - Added face-or-style option to creation functions
+;; - Make svg-lib-tag more generic (can now create tag, icon or icon+tag)
+;; - Various bug fixes
 
 ;; Version 0.3
 ;; - Renamed 'svg-lib-button' to 'svg-lib-icon+tag'
@@ -245,6 +248,12 @@ to the default face)."
                                     (symbol)))
   :group 'svg-lib)
 
+
+(defvar-local svg-lib-button--press-id nil
+  "Id of the currently pressed button (buffer local)")
+
+(defvar-local svg-lib-button--hover-id nil
+  "Id of the currently hovered button (buffer local)")
 
 ;; Convert Emacs color to SVG color
 (defun svg-lib-convert-color (color-name)
@@ -843,7 +852,7 @@ hovered button unless NO-RESET is t"
               ((eq state 'press)
                (setq-local svg-lib-button--press-id id)))))
 
-(defun svg-lib-button--tooltip-hide (&rest args)
+(defun svg-lib-button--tooltip-hide (&rest _args)
   "Set currently press or hightlighted button to default
 state (active) and hover button at point if any."
 
@@ -969,6 +978,7 @@ activated before inserting a button into a buffer."
                     (press . ,press)))
          (state 'active))
     (setq svg-lib-button--id-counter (1+ svg-lib-button--id-counter))
+
     (propertize (concat label " ")
                 'display (cdr (assoc state buttons))
                 'svg-lib-button t
