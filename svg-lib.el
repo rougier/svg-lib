@@ -168,7 +168,7 @@
      "https://boxicons.com/static/img/svg/regular/bx-%s.svg")
     ("vscode" .
      "https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/light/%s.svg"))
-    
+
   "Various icons collections stored as (name . base-url).
 
 The name of the collection is used as a pointer for the various
@@ -217,7 +217,7 @@ to the default face)."
       :crop-right    nil    ;; Whether to crop on righ (for collage with other tags)
 
       :collection    "material" ;; Icon collection
-      
+
       :font-family   ,font-family
       :font-size     ,font-size
       :font-weight   ,font-weight)))
@@ -264,12 +264,12 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
     (let ((rgb-color (color-name-to-rgb color-name)))
       (if rgb-color
           (apply #'color-rgb-to-hex (append rgb-color '(2)))
-	color-name))))
+        color-name))))
 
 ;; SVG Library style build from partial specification
 (defun svg-lib-style (&optional base &rest args)
   "Build a news style using BASE and style elements ARGS."
-  
+
   (let* ((default svg-lib-style-default)
          (base (or base default))
          (keys (cl-loop for (key _value) on default by 'cddr
@@ -352,7 +352,7 @@ and additional style elements ARGS."
 (defun svg-lib-text-tag (label &optional face-or-style &rest args)
   "Create an image displaying LABEL in a rounded box using given FACE-OR-STYLE
 and additional style elements ARGS."
-  
+
   (let* ((style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
@@ -394,7 +394,7 @@ and additional style elements ARGS."
          (text-x     (if crop-left  (- text-x (/ stroke 2)) text-x))
          (tag-width  (if crop-right (+ tag-width txt-char-width) tag-width))
          (text-x     (if crop-right (+ text-x (/ stroke 2)) text-x))
-         
+
          (svg (svg-create svg-width svg-height)))
 
     (when (>= stroke 0.25)
@@ -486,7 +486,7 @@ and additional style elements ARGS."
          (tag-height      (* txt-char-height height))
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
-         (svg-ascent      (plist-get style :ascent))         
+         (svg-ascent      (plist-get style :ascent))
          (tag-x (/ (- svg-width tag-width) 2))
          (svg (svg-create svg-width svg-height)))
 
@@ -503,7 +503,7 @@ and additional style elements ARGS."
                        (- (* value tag-width) stroke (* 2 padding))
                        (- tag-height stroke (* 2 padding))
                        :fill foreground :rx (- radius (/ stroke 2.0)))
-    
+
     (svg-lib--image svg :ascent svg-ascent)))
 
 ;; Create a rounded box icon
@@ -551,7 +551,7 @@ given FACE-OR-STYLE and additional style elements ARGS."
          (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
-         (width      (+ 2 padding))         
+         (width      (+ 2 padding))
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          (box-width       (* width txt-char-width))
@@ -587,7 +587,7 @@ given FACE-OR-STYLE and additional style elements ARGS."
                      (- box-width stroke)
                      (- box-height stroke)
                      :fill background :rx (- radius (/ stroke 2.0))))
-    
+
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
              (path (cdr (assoc 'd attrs)))
@@ -612,7 +612,7 @@ and additional style elements ARGS."
                       (t
                        (apply #'svg-lib-style svg-lib-style-default args))))
          (collection (plist-get style :collection))
-         (root (svg-lib--icon-get-data collection icon))         
+         (root (svg-lib--icon-get-data collection icon))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
@@ -702,7 +702,7 @@ FACE-OR-STYLE and additional style elements ARGS."
          (day (format-time-string "%d" date)))
     (apply 'svg-lib-box weekday day face-or-style args)))
 
-        
+
 (defun svg-lib-box (top bottom &optional face-or-style &rest args)
   "Create a two lines icon showing given TOP and BOTTOM text, using
 given STYLE and style elements ARGS."
@@ -731,7 +731,7 @@ given STYLE and style elements ARGS."
          (svg-ascent      (or (plist-get style :ascent) 'center))
          (tag-x           (/ (- svg-width tag-width) 2) )
          (svg (svg-create svg-width svg-height)))
-    
+
     (when (>= stroke 0.25)
       (svg-rectangle svg tag-x 0 tag-width tag-height
                      :fill foreground :rx radius))
@@ -772,16 +772,16 @@ given STYLE and style elements ARGS."
   "Concatenate two svg images horizontally."
 
  (let* ((svg (car (with-temp-buffer
- 	                (insert (plist-get (cdr svg-image-1) :data))
- 	                (xml-parse-region (point-min) (point-max)))))
+                        (insert (plist-get (cdr svg-image-1) :data))
+                        (xml-parse-region (point-min) (point-max)))))
         (attrs (xml-node-attributes svg))
         (width-1 (string-to-number (cdr (assq 'width attrs))))
         (height-1 (string-to-number (cdr (assq 'height attrs))))
         (children-1 (xml-node-children svg))
- 
+
         (svg (car (with-temp-buffer
- 	                (insert (plist-get (cdr svg-image-2) :data))
- 	                (xml-parse-region (point-min) (point-max)))))
+                        (insert (plist-get (cdr svg-image-2) :data))
+                        (xml-parse-region (point-min) (point-max)))))
         (attrs (xml-node-attributes svg))
         (width-2 (string-to-number (cdr (assq 'width attrs))))
         (height-2 (string-to-number (cdr (assq 'height attrs))))
@@ -821,7 +821,7 @@ given STYLE and style elements ARGS."
 
 (defun svg-lib-button--get-state (id &optional region)
   "Return the state of button ID"
-  
+
   (when-let* ((region (or region (svg-lib-button--search id))))
     (get-text-property (car region) 'button-state)))
 
@@ -894,7 +894,7 @@ problem if the hook creates a frame."
     (if-let ((id (svg-lib-button--at-point mouse-point)))
         (svg-lib-button--set-state svg-lib-button--press-id 'hover)
       (svg-lib-button--set-state svg-lib-button--press-id 'active)))
-  
+
   (when-let* ((region (svg-lib-button--search svg-lib-button--press-id))
               (hook (get-text-property (car region) 'button-hook)))
     (if (minibufferp nil t)
@@ -902,10 +902,10 @@ problem if the hook creates a frame."
             (abort-minibuffers)
           (funcall hook))
       (funcall hook))))
- 
+
 (defun svg-lib-button--mouse-drag ()
   "Update the state of the button under mouse"
-  
+
   (interactive)
   (save-excursion
     (mouse-set-point last-input-event)
@@ -1029,13 +1029,9 @@ work properly. This mode also installs an advice on
     (dolist (property '(help-echo keymap display))
       (setq-local font-lock-extra-managed-props
                   (remove property font-lock-extra-managed-props))))
-  
+
   (unless svg-lib-button-mode
     (advice-remove #'remove-text-properties #'svg-lib-button--remove-text-properties)))
 
 (provide 'svg-lib)
 ;;; svg-lib.el ends here
-
-
-
-      
