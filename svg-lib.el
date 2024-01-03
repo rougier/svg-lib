@@ -996,7 +996,7 @@ activated before inserting a button into a buffer."
   "This advice function ensures keymap is not removed when in svg-lib-button-mode"
 
   (let ((properties (if (and svg-lib-button-mode (derived-mode-p 'org-mode))
-                        (org-plist-delete properties 'keymap)
+                        (svg--plist-delete properties 'keymap)
                        properties)))
     (apply orig-fun (list beg end properties object))))
 
