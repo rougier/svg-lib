@@ -112,6 +112,7 @@
 (require 'xml)
 (require 'cl-lib)
 (require 'color)
+(require 'org)
 
 ;; Check if Emacs has been compiled with svg support
 (defun svg-lib--image (&rest args)
@@ -352,8 +353,7 @@ and additional style elements ARGS."
   "Create an image displaying LABEL in a rounded box using given FACE-OR-STYLE
 and additional style elements ARGS."
   
-  (let* ((default svg-lib-style-default)
-         (style (cond ((facep face-or-style)
+  (let* ((style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
@@ -413,8 +413,7 @@ and additional style elements ARGS."
   "Create a progress pie image with value VALUE using given FACE-OR-STYLE
 and additional style elements ARGS."
 
-  (let* ((default svg-lib-style-default)
-         (style (cond ((facep face-or-style)
+  (let* ((style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
@@ -467,8 +466,7 @@ and additional style elements ARGS."
   "Create a progress bar image with value VALUE using given FACE-OR-STYLE
 and additional style elements ARGS."
 
-  (let* ((default svg-lib-style-default)
-         (style (cond ((facep face-or-style)
+  (let* ((style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
@@ -537,8 +535,7 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
   "Create a SVG image displaying icon NAME from COLLECTION using
 given FACE-OR-STYLE and additional style elements ARGS."
 
-  (let* ((default svg-lib-style-default)
-         (style (cond ((facep face-or-style)
+  (let* ((style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
@@ -608,8 +605,7 @@ given FACE-OR-STYLE and additional style elements ARGS."
   "Create an image displaying LABEL in a rounded box using given FACE-OR-STYLE
 and additional style elements ARGS."
 
-  (let* ((default svg-lib-style-default)
-         (style (cond ((facep face-or-style)
+  (let* ((style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
@@ -711,8 +707,7 @@ FACE-OR-STYLE and additional style elements ARGS."
   "Create a two lines icon showing given TOP and BOTTOM text, using
 given STYLE and style elements ARGS."
 
-  (let* ((default svg-lib-style-default)
-         (style (cond ((facep face-or-style)
+  (let* ((style (cond ((facep face-or-style)
                        (apply #'svg-lib-style-from-face face-or-style args))
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
@@ -835,7 +830,7 @@ given STYLE and style elements ARGS."
 hovered button unless NO-RESET is t"
 
   ;; Reset previous hover button state (if any)
-  (when (and (boundp 'svg-lib-button--hover-id) svg-lib-button--hover-id (not no-reset))
+  (when (and svg-lib-button--hover-id (not no-reset))
     (let ((prev-id svg-lib-button--hover-id))
       (setq-local svg-lib-button--hover-id nil)
       (svg-lib-button--set-state prev-id 'active)))
@@ -856,9 +851,9 @@ hovered button unless NO-RESET is t"
   "Set currently press or hightlighted button to default
 state (active) and hover button at point if any."
 
-  (when (boundp 'svg-lib-button--press-id)
+  (when svg-lib-button--press-id
     (svg-lib-button--set-state svg-lib-button--press-id 'active))
-  (when (boundp 'svg-lib-button--hover-id)
+  (when svg-lib-button--hover-id
     (svg-lib-button--set-state svg-lib-button--hover-id 'active))
 
   ;; Hover button at point (if any)
