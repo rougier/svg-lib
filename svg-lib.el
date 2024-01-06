@@ -95,7 +95,7 @@
 ;; - Better error handling if SVG support is missing
 
 ;; Version 0.2.2
-;; - Added a left/righ crop style argument to allow for tags collage.
+;; - Added a left/right crop style argument to allow for tags collage.
 
 ;; Version 0.2.1
 ;; - Added an alignment parameter for moving tags inside margins.
@@ -214,7 +214,7 @@ to the default face)."
       :scale         0.75   ;; Icon scaling
       :ascent        center ;; Position / baseline
       :crop-left     nil    ;; Whether to crop on left (for collage with other tags)
-      :crop-right    nil    ;; Whether to crop on righ (for collage with other tags)
+      :crop-right    nil    ;; Whether to crop on right (for collage with other tags)
 
       :collection    "material" ;; Icon collection
 
@@ -848,7 +848,7 @@ hovered button unless NO-RESET is t"
                (setq-local svg-lib-button--press-id id)))))
 
 (defun svg-lib-button--tooltip-hide (&rest _args)
-  "Set currently press or hightlighted button to default
+  "Set currently press or highlighted button to default
 state (active) and hover button at point if any."
 
   (when svg-lib-button--press-id
