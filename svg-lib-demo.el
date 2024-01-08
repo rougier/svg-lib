@@ -18,7 +18,7 @@
 ;;; Commentary:
 ;;
 ;; This file demonstrates some usage examples of the svg-lib package.
-:; Each line should insert some svg objets into the current buffer.
+:; Each line should insert some svg objects into the current buffer.
 
 (require 'svg-lib)
 
