@@ -112,7 +112,6 @@
 (require 'xml)
 (require 'cl-lib)
 (require 'color)
-(require 'org)
 
 ;; Check if Emacs has been compiled with svg support
 (defun svg-lib--image (&rest args)
