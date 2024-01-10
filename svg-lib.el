@@ -311,7 +311,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
          (stroke      (or (plist-get (face-attribute face :box) ':line-width) nil))
          (style       `(:background ,background
                         :foreground ,foreground
-                        ,@(when stroke `(:stroke stroke))
+                        ,@(when stroke `(:stroke ,stroke))
                         :font-family ,font-family
                         :font-size ,font-size
                         :font-weight ,font-weight))
