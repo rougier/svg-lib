@@ -276,9 +276,12 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
          (style '()))
 
     (dolist (key keys)
-      (setq style (if (plist-member args key)
-                      (plist-put style key (plist-get args key))
-                    (plist-put style key (plist-get base key)))))
+      (setq style (cond ((plist-member args key)
+                         (plist-put style key (plist-get args key)))
+                         ((plist-member base key)
+                          (plist-put style key (plist-get base key)))
+                         (t
+                          (plist-put style key (plist-get default key))))))
 
     ;; Convert emacs colors to SVG colors
     (plist-put style :foreground
