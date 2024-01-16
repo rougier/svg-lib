@@ -838,7 +838,8 @@ hovered button unless NO-RESET is t"
       (svg-lib-button--set-state prev-id 'active)))
 
   ;; Set new state
-  (when-let* ((region (svg-lib-button--search id))
+  (when-let* ((inhibit-read-only t)
+              (region (svg-lib-button--search id))
               (cur-state (svg-lib-button--get-state id region))
               (button-list (get-text-property (car region) 'button-list))
               (display (cdr (assoc state button-list))))
