@@ -222,7 +222,7 @@ to the default face)."
       :font-weight   ,font-weight)))
 
 (defcustom svg-lib-style-default
-  (svg-lib-style-compute-default)
+  nil
   "Default style"
   :type '(plist :key-type (choice (const :tag "Background" :background)
                                   (const :tag "Foreground" :foreground)
@@ -248,6 +248,15 @@ to the default face)."
                                     (symbol)))
   :group 'svg-lib)
 
+(defun svg-lib-style-default--get ()
+  "Get default style.
+
+Should be considered the main way to get default style.
+Will compute default style if not set. This is neccessary
+in order to delay evaluation of default style until
+everything is loaded."
+  (or svg-lib-style-default (setq svg-lib-style-default
+                                  (svg-lib-style-compute-default))))
 
 (defvar-local svg-lib-button--press-id nil
   "Id of the currently pressed button (buffer local)")
@@ -269,7 +278,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
 (defun svg-lib-style (&optional base &rest args)
   "Build a news style using BASE and style elements ARGS."
 
-  (let* ((default svg-lib-style-default)
+  (let* ((default (svg-lib-style-default--get))
          (base (or base default))
          (keys (cl-loop for (key _value) on default by 'cddr
                         collect key))
@@ -315,7 +324,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
                         :font-family ,font-family
                         :font-size ,font-size
                         :font-weight ,font-weight))
-         (base svg-lib-style-default)
+         (base (svg-lib-style-default--get))
          (keys (cl-loop for (key _value) on base by 'cddr collect key)))
     (dolist (key keys)
       (cond ((plist-member args key)
@@ -335,13 +344,13 @@ and additional style elements ARGS."
                         (face-or-style
                          (apply #'svg-lib-style face-or-style args))
                       (t
-                       (apply #'svg-lib-style svg-lib-style-default args))))
+                       (apply #'svg-lib-style (svg-lib-style-default--get) args))))
            (label-regex "\\[\\([a-zA-Z0-9]+:\\)?\\([a-zA-Z0-9 _-]+\\)\\] *\\(.+\\)?"))
       (if (string-match label-regex label)
           (let* ((collection (match-string 1 label))
                  (collection (if (stringp collection)
                                  (substring collection 0 -1)
-                               (plist-get svg-lib-style-default ':collection)))
+                               (plist-get (svg-lib-style-default--get) ':collection)))
                  (icon       (match-string 2 label))
                  (label      (match-string 3 label)))
             (if (and (stringp label) (> (length label) 0))
@@ -360,7 +369,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       (apply #'svg-lib-style svg-lib-style-default args))))
+                       (apply #'svg-lib-style (svg-lib-style-default--get) args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (crop-left   (plist-get style :crop-left))
@@ -420,7 +429,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       (apply #'svg-lib-style svg-lib-style-default args))))
+                       (apply #'svg-lib-style (svg-lib-style-default--get) args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
@@ -473,7 +482,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       (apply #'svg-lib-style svg-lib-style-default args))))
+                       (apply #'svg-lib-style (svg-lib-style-default--get) args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
@@ -542,7 +551,7 @@ given FACE-OR-STYLE and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       (apply #'svg-lib-style svg-lib-style-default args))))
+                       (apply #'svg-lib-style (svg-lib-style-default--get) args))))
          (collection  (plist-get style :collection))
          (root (svg-lib--icon-get-data collection icon))
          (foreground  (plist-get style :foreground))
@@ -612,7 +621,7 @@ and additional style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       (apply #'svg-lib-style svg-lib-style-default args))))
+                       (apply #'svg-lib-style (svg-lib-style-default--get) args))))
          (collection (plist-get style :collection))
          (root (svg-lib--icon-get-data collection icon))
          (foreground  (plist-get style :foreground))
@@ -714,7 +723,7 @@ given STYLE and style elements ARGS."
                       (face-or-style
                        (apply #'svg-lib-style face-or-style args))
                       (t
-                       (apply #'svg-lib-style svg-lib-style-default args))))
+                       (apply #'svg-lib-style (svg-lib-style-default--get) args))))
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
@@ -947,7 +956,7 @@ activated before inserting a button into a buffer."
                         (apply #'svg-lib-tag label (car active) (cdr active)))
                        (t
                         (svg-lib-tag label 'default
-                                     :font-family (plist-get svg-lib-style-default ':font-family)
+                                     :font-family (plist-get (svg-lib-style-default--get) ':font-family)
                                      :font-weight 'regular))))
          (hover (cond ((facep hover)
                        (svg-lib-tag label hover))
@@ -958,7 +967,7 @@ activated before inserting a button into a buffer."
                                     :foreground (face-background 'default nil 'default)
                                     :background (face-foreground 'font-lock-comment-face nil 'default)
                                     :stroke 0
-                                    :font-family (plist-get svg-lib-style-default ':font-family)
+                                    :font-family (plist-get (svg-lib-style-default--get) ':font-family)
                                     :font-weight 'semibold))))
          (press (cond ((facep press)
                         (svg-lib-tag label press))
@@ -969,7 +978,7 @@ activated before inserting a button into a buffer."
                                      :foreground (face-background 'default)
                                      :background (face-foreground 'default)
                                      :stroke 0
-                                     :font-family (plist-get svg-lib-style-default ':font-family)
+                                     :font-family (plist-get (svg-lib-style-default--get) ':font-family)
                                      :font-weight 'semibold))))
          (buttons `((active . ,active)
                     (hover . ,hover)
