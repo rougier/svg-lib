@@ -21,6 +21,7 @@
 :; Each line should insert some svg objects into the current buffer.
 
 (require 'svg-lib)
+(svg-lib-button-mode 1)
 
 (dotimes (i 5)
   (insert-image (svg-lib-tag "TODO" nil
@@ -65,7 +66,6 @@
 (insert-image (svg-lib-date nil nil :font-family "Roboto" :radius 5
                                     :foreground "#673AB7"))
  
-(svg-lib-button-mode 1)
 (insert (svg-lib-button "[check-bold] OK"
                         (lambda () (interactive) (message "OK"))))
 
