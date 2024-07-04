@@ -128,7 +128,6 @@
 (defface svg-lib-button-active-face
   `((t :foreground ,(face-foreground 'default)
        :background ,(face-background 'default)
-       :family "RobotoMono Nerd Font"
        :weight regular
        :box (:line-width 2 :style nil)))
   "Default face for active button"
@@ -137,16 +136,14 @@
 (defface svg-lib-button-hover-face
   `((t :foreground ,(face-background 'font-lock-comment-face nil 'default)
        :background ,(face-foreground 'font-lock-comment-face nil 'default)
-       :family "RobotoMono Nerd Font"
        :weight semibold
        :box nil))
-  "default face for when mouse is over the button"
+  "Default face for when mouse is over the button"
   :group 'svg-lib)
 
 (defface svg-lib-button-press-face
   `((t :foreground ,(face-background 'default)
        :background ,(face-foreground 'default)
-       :family "RobotoMono Nerd Font"
        :weight semibold
        :box nil))
   "Default face for when button is prssed (mouse click or keyboard)"
@@ -274,6 +271,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
           (apply #'color-rgb-to-hex (append rgb-color '(2)))
         color-name))))
 
+
 ;; SVG Library style build from partial specification
 (defun svg-lib-style (&optional base &rest args)
   "Build a news style using BASE and style elements ARGS."
@@ -285,12 +283,15 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
          (style '()))
 
     (dolist (key keys)
-      (setq style (cond ((plist-member (list args) key)
-                         (plist-put style key (plist-get (list args) key)))
-                         ((plist-member base key)
-                          (plist-put style key (plist-get base key)))
-                         (t
-                          (plist-put style key (plist-get default key))))))
+      (setq style (cond ((plist-member args key)
+                         (plist-put style key (plist-get args key)))
+						((and (plist-member base key) (plist-member args key))
+                         (plist-put style key (plist-get base key))
+						 (plist-put style key (plist-get args key)))
+						((plist-member base key)
+						 (plist-put style key (plist-get base key)))
+						(t
+                         (plist-put style key (plist-get default key))))))
 
     ;; Convert emacs colors to SVG colors
     (plist-put style :foreground
