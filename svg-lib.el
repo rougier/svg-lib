@@ -285,8 +285,8 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
          (style '()))
 
     (dolist (key keys)
-      (setq style (cond ((plist-member args key)
-                         (plist-put style key (plist-get args key)))
+      (setq style (cond ((plist-member (list args) key)
+                         (plist-put style key (plist-get (list args) key)))
                          ((plist-member base key)
                           (plist-put style key (plist-get base key)))
                          (t
